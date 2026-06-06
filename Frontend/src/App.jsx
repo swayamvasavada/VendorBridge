@@ -6,7 +6,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import "./App.css";
-// import LoginPage from "./pages/LoginPage";
+import LoginPage from "./pages/LoginPage";
 // import Dashboard from "./pages/Dashboard";
 import SignUp from "./pages/SignUp";
 
@@ -15,7 +15,7 @@ function AppContent() {
     <>
       {/* <div className="flex min-h-screen"> */}
       <Routes>
-        {/* <Route path="/" element={<LoginPage />} /> */}
+        <Route path="/" element={<LoginPage />} />
         <Route path="/signup" element={<SignUp />} />
         {/* <Route path="/dashboard" element={<Dashboard />} /> */}
       </Routes>
