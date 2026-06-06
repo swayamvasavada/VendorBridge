@@ -4,6 +4,7 @@
 import { useState, ChangeEvent, ReactNode } from "react";
 import { tokens, ColorTokens, Theme } from "../colors/color";
 import { Link } from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Fields {
@@ -330,8 +331,11 @@ export default function SignUpPage() {
   const [theme, setTheme] = useState<Theme>("dark");
   const t = tokens(theme);
 
+  const { vendorRegistration, loading } = useAuthStore();
+
   const [fields, setFields]       = useState<Fields>(EMPTY_FIELDS);
   const [errors, setErrors]       = useState<Errors>({});
+  const [requestError, setRequestError] = useState<string | null>(null);
   const [showPwd, setShowPwd]     = useState(false);
   const [showCPwd, setShowCPwd]   = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -340,17 +344,41 @@ export default function SignUpPage() {
     const val = e.target.type === "checkbox" ? (e.target as HTMLInputElement).checked : e.target.value;
     setFields(f => ({ ...f, [key]: val }));
     setErrors(err => ({ ...err, [key]: undefined }));
+    setRequestError(null);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const errs = validate(fields);
     setErrors(errs);
-    if (Object.keys(errs).length === 0) setSubmitted(true);
+    setRequestError(null);
+
+    if (Object.keys(errs).length === 0) {
+      try {
+        const fullName = `${fields.firstName.trim()} ${fields.lastName.trim()}`;
+        await vendorRegistration({
+          name: fullName,
+          email: fields.email,
+          password: fields.password,
+          phoneNo: fields.phone,
+          role: fields.role,
+          companyName: fields.country,
+          additionalInfo: fields.additionalInfo,
+        });
+        setSubmitted(true);
+      } catch (error: any) {
+        setRequestError(
+          error?.response?.data?.message ||
+            error?.message ||
+            "Registration failed. Please try again."
+        );
+      }
+    }
   };
 
   const resetForm = () => {
     setFields(EMPTY_FIELDS);
     setErrors({});
+    setRequestError(null);
     setSubmitted(false);
   };
 
@@ -541,10 +569,18 @@ export default function SignUpPage() {
             </div>
             {errors.agreed && <p className="text-xs mb-2.5" style={{ color: t.error }}>⚠ {errors.agreed}</p>}
 
+            {/* Error message */}
+            {requestError && (
+              <p className="text-sm mb-4 p-3 rounded-xl" style={{ background: t.accentSubtle, color: t.error }}>
+                ⚠ {requestError}
+              </p>
+            )}
+
             {/* Register button */}
             <button
               onClick={handleSubmit}
-              className="w-full mt-5 py-3.5 rounded-xl text-base font-bold transition-all hover:scale-105 focus:outline-none"
+              disabled={loading}
+              className="w-full mt-5 py-3.5 rounded-xl text-base font-bold transition-all hover:scale-105 focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
               style={{
                 background: t.btnBg,
                 color: t.btnText,
@@ -552,10 +588,10 @@ export default function SignUpPage() {
                 letterSpacing: "-0.01em",
                 boxShadow: `0 4px 16px ${t.accentGlow}`,
               }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = t.btnHover; (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)"; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = t.btnBg; (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)"; }}
+              onMouseEnter={e => { if (!loading) { (e.currentTarget as HTMLButtonElement).style.background = t.btnHover; (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)"; } }}
+              onMouseLeave={e => { if (!loading) { (e.currentTarget as HTMLButtonElement).style.background = t.btnBg; (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)"; } }}
             >
-              Register →
+              {loading ? "Registering..." : "Register →"}
             </button>
 
             <p className="text-center mt-3.5 text-sm" style={{ color: t.textMuted }}>

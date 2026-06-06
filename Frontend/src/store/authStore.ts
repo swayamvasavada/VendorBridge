@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import axios from "axios";
-import { Login, forgotPassword as forgotPasswordPath } from "../apiPath";
+import { Login, forgotPassword as forgotPasswordPath, vendorRegistration as vendorRegistrationPath } from "../apiPath";
 
 interface LoginPayload {
   email: string;
@@ -11,10 +11,21 @@ interface ForgotPasswordPayload {
   email: string;
 }
 
+interface VendorRegistrationPayload {
+  name: string;
+  email: string;
+  password: string;
+  phoneNo: string;
+  role: string;
+  companyName: string;
+  additionalInfo: string;
+}
+
 interface AuthState {
   loading: boolean;
   login: (payload: LoginPayload) => Promise<any>;
   forgotPassword: (payload: ForgotPasswordPayload) => Promise<any>;
+  vendorRegistration: (payload: VendorRegistrationPayload) => Promise<any>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -70,6 +81,35 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ loading: false });
 
       console.log("===== FORGOT PASSWORD ERROR =====");
+      console.log("Message:", error.message);
+      console.log("Response:", error.response?.data);
+      console.log("Status:", error.response?.status);
+
+      throw error;
+    }
+  },
+
+  vendorRegistration: async (payload) => {
+    try {
+      set({ loading: true });
+
+      console.log("===== VENDOR REGISTRATION REQUEST =====");
+      console.log("URL:", vendorRegistrationPath);
+      console.log("Payload:", payload);
+
+      const response = await axios.post(vendorRegistrationPath, payload);
+
+      console.log("===== VENDOR REGISTRATION RESPONSE =====");
+      console.log("Status:", response.status);
+      console.log("Data:", response.data);
+
+      set({ loading: false });
+
+      return response.data;
+    } catch (error: any) {
+      set({ loading: false });
+
+      console.log("===== VENDOR REGISTRATION ERROR =====");
       console.log("Message:", error.message);
       console.log("Response:", error.response?.data);
       console.log("Status:", error.response?.status);
