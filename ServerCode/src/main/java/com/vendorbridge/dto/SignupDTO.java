@@ -9,6 +9,7 @@ public class SignupDTO {
     private String phoneNo;
 	private UserRole role;
 	private String companyName;
+	private String category;
 	private String address;
 	private String gstNumber;
 	
@@ -58,6 +59,14 @@ public class SignupDTO {
 
 	public void setCompanyName(String companyName) {
 		this.companyName = companyName;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
 	}
 
 	public String getAddress() {

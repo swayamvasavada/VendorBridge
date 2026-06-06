@@ -79,9 +79,27 @@ public class UserService {
 
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(user, userDTO);
-        userDTO.setId(user.getUserID());
+        userDTO.setUserID(user.getUserID());
 
         System.out.println("Exiting from UserService -> toggleUserEnabled");
+        return userDTO;
+    }
+
+    public UserDTO deleteUser(Long userId) {
+        System.out.println("Entering into UserService -> deleteUser");
+
+        User user = userDAO.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with given id"));
+
+        user.setActive(false);
+        user.setModifiedAt(new Date());
+        userDAO.save(user);
+
+        UserDTO userDTO = new UserDTO();
+        BeanUtils.copyProperties(user, userDTO);
+        userDTO.setUserID(user.getUserID());
+
+        System.out.println("Exiting from UserService -> deleteUser");
         return userDTO;
     }
 

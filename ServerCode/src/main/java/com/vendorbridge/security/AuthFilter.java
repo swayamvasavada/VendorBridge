@@ -31,12 +31,19 @@ public class AuthFilter extends OncePerRequestFilter {
 
 		System.out.println("Verification of JWT begin using custom filter chain");
 		String authHeader = request.getHeader("Authorization");
-
+		
+		if (authHeader != null) {
+			System.out.println("Authorization header found: " + authHeader);
+		} else {
+			System.out.println("No Authorization header found");
+		}
+		
 		if (authHeader != null && authHeader.startsWith("Bearer ")) {
 			String authToken = authHeader.substring(7); // remove "Bearer "
 			try {
 				String email = jwtUtil.verifyToken(authToken);
 
+				System.out.println("JWT verification successful for email: " + email);
 				if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 					UserDetails user = userDetailsService.loadUserByUsername(email);
 

@@ -34,6 +34,9 @@ public class Vendor {
     @Column(name = "CompanyName")
 	private String companyName;
 
+    @Column(name = "Category")
+    private String category;
+
     @Column(name = "Address")
     private String address;
 
@@ -62,12 +65,28 @@ public class Vendor {
         this.user = user;
     }
 
+    public String getGstNumber() {
+        return gstNumber;
+    }
+
+    public void setGstNumber(String gstNumber) {
+        this.gstNumber = gstNumber;
+    }
+
     public String getCompanyName() {
         return companyName;
     }
 
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public String getAddress() {
@@ -84,5 +103,21 @@ public class Vendor {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getModifiedAt() {
+        return modifiedAt;
+    }
+
+    public void setModifiedAt(Date modifiedAt) {
+        this.modifiedAt = modifiedAt;
     }
 }

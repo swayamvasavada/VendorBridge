@@ -3,6 +3,8 @@ package com.vendorbridge.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -54,6 +56,29 @@ public class UserController {
 		return ResponseEntity.ok(responseDTO);
 	}
 
+    @Operation(summary = "Fetch active users")
+    @GetMapping("/fetchUsers")
+    public ResponseEntity<ResponseDTO> fetchUsers() {
+		System.out.println("Entering into UserController -> fetchUsers");
+
+		ResponseDTO responseDTO = new ResponseDTO();
+		try {
+			responseDTO.setServiceResult(userService.getAllUsers());
+			responseDTO.setMessage("Users fetched successfully");
+			responseDTO.setSuccess(Boolean.TRUE);
+		} catch (Exception e) {
+			e.printStackTrace();
+			responseDTO.setServiceResult("Failed to fetch users");
+			responseDTO.setMessage("Failed to fetch users");
+			responseDTO.setSuccess(Boolean.FALSE);
+
+			return new ResponseEntity<>(responseDTO, HttpStatusCode.valueOf(500));
+		}
+
+		System.out.println("Exiting from UserController -> fetchUsers");
+		return ResponseEntity.ok(responseDTO);
+	}
+
     @Operation(summary = "Toggle user enabled status")
     @PatchMapping("/toggleUserEnabled")
     public ResponseEntity<ResponseDTO> toggleUserEnabled(@RequestParam Long userId, @RequestParam Boolean isEnabled) {
@@ -80,6 +105,35 @@ public class UserController {
 		}
 
 		System.out.println("Exiting from UserController -> toggleUserEnabled");
+		return ResponseEntity.ok(responseDTO);
+	}
+
+    @Operation(summary = "Soft delete user")
+    @DeleteMapping("/deleteUser")
+    public ResponseEntity<ResponseDTO> deleteUser(@RequestParam Long userId) {
+		System.out.println("Entering into UserController -> deleteUser");
+
+		ResponseDTO responseDTO = new ResponseDTO();
+		try {
+			responseDTO.setServiceResult(userService.deleteUser(userId));
+			responseDTO.setMessage("User deleted successfully");
+			responseDTO.setSuccess(Boolean.TRUE);
+		} catch (ResourceNotFoundException e) {
+			e.printStackTrace();
+			responseDTO.setServiceResult(e.getMessage());
+			responseDTO.setMessage(e.getMessage());
+			responseDTO.setSuccess(Boolean.FALSE);
+			return new ResponseEntity<>(responseDTO, HttpStatusCode.valueOf(404));
+		} catch (Exception e) {
+			e.printStackTrace();
+			responseDTO.setServiceResult("Failed to delete user");
+			responseDTO.setMessage("Failed to delete user");
+			responseDTO.setSuccess(Boolean.FALSE);
+
+			return new ResponseEntity<>(responseDTO, HttpStatusCode.valueOf(500));
+		}
+
+		System.out.println("Exiting from UserController -> deleteUser");
 		return ResponseEntity.ok(responseDTO);
 	}
 }

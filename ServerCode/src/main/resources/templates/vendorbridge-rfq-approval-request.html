@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RFQ Approval Request</title>
+</head>
+
+<body style="margin:0;padding:0;background-color:#f4f6f9;font-family:Arial, Helvetica, sans-serif;">
+
+    <table width="100%" cellpadding="0" cellspacing="0" border="0"
+        style="background-color:#f4f6f9;padding:30px 0;">
+        <tr>
+            <td align="center">
+
+                <table width="600" cellpadding="0" cellspacing="0" border="0"
+                    style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,0.08);">
+
+                    <!-- Header -->
+                    <tr>
+                        <td align="center"
+                            style="background:linear-gradient(135deg,#0f4c81,#1d72b8);padding:35px 20px;color:#ffffff;">
+
+                            <h1 style="margin:0;font-size:30px;font-weight:bold;">
+                                VendorBridge
+                            </h1>
+
+                            <p style="margin:10px 0 0;font-size:15px;opacity:0.95;">
+                                RFQ Approval Required
+                            </p>
+
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding:40px 35px;color:#333333;">
+
+                            <h2 style="margin-top:0;color:#0f4c81;font-size:24px;">
+                                New RFQ Pending Approval
+                            </h2>
+
+                            <p style="font-size:15px;line-height:1.8;margin-bottom:20px;">
+                                Hello <strong th:text="${managerName}">Manager</strong>,
+                            </p>
+
+                            <p style="font-size:15px;line-height:1.8;margin-bottom:25px;">
+                                A new Request for Quotation (RFQ) has been created and is awaiting your approval.
+                            </p>
+
+                            <!-- RFQ Details -->
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                                style="background:#f8f9fa;border-radius:8px;padding:20px;margin-bottom:25px;border-left:4px solid #0f4c81;">
+                                <tr>
+                                    <td>
+                                        <p style="margin:0 0 10px 0;font-size:14px;">
+                                            <strong>RFQ Title:</strong> <span th:text="${rfqTitle}">---</span>
+                                        </p>
+                                        <p style="margin:0 0 10px 0;font-size:14px;">
+                                            <strong>Description:</strong> <span th:text="${rfqDescription}">---</span>
+                                        </p>
+                                        <p style="margin:0 0 10px 0;font-size:14px;">
+                                            <strong>Deadline:</strong> <span th:text="${rfqDeadline}">---</span>
+                                        </p>
+                                        <p style="margin:0;font-size:14px;">
+                                            <strong>Number of Vendors:</strong> <span th:text="${vendorCount}">---</span>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="font-size:15px;line-height:1.8;margin-bottom:30px;">
+                                Please review the details and provide your approval or feedback. Once approved, the RFQ will be sent to all selected vendors.
+                            </p>
+
+                            <!-- Action Button -->
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                    <td align="center">
+                                        <a th:href="${approvalUrl}"
+                                            style="display:inline-block;background:#0f4c81;color:#ffffff;text-decoration:none;border-radius:8px;padding:14px 40px;font-weight:bold;font-size:16px;">
+                                            Review RFQ
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background:#f8f9fa;padding:25px 35px;border-top:1px solid #e0e0e0;color:#666666;font-size:13px;line-height:1.8;">
+
+                            <p style="margin:0 0 10px 0;">
+                                <strong>VendorBridge</strong><br>
+                                Smart Procurement & Vendor Management Platform
+                            </p>
+
+                            <p style="margin:0;font-size:12px;color:#999999;">
+                                This is an automated email. Please do not reply to this message.
+                            </p>
+
+                        </td>
+                    </tr>
+
+                </table>
+
+            </td>
+        </tr>
+    </table>
+
+</body>
+
+</html>

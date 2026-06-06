@@ -55,6 +55,8 @@ public class AuthService {
         Vendor vendor = new Vendor();
         BeanUtils.copyProperties(signupDTO, vendor);
         vendor.setUser(user);
+        vendor.setActive(true);
+        vendor.setCreatedAt(new Date());
 
         userDAO.save(user);
         vendor = vendorDAO.save(vendor);

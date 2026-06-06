@@ -3,6 +3,7 @@ package com.vendorbridge.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -27,6 +28,9 @@ public class WebSecurityConfig {
                             .authorizeHttpRequests(
                                             auth -> auth.requestMatchers("/api/auth/**").permitAll()
                                                             .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                                            .requestMatchers(HttpMethod.GET, "/api/rfq/fetchVendorRFQs").hasRole("VENDOR")
+                                                            .requestMatchers("/api/rfq/**").hasAnyRole("ADMIN", "PROCUREMENT_OFFICER", "MANAGER")
+                                                            .requestMatchers("/api/quotation/**").hasAnyRole("ADMIN", "PROCUREMENT_OFFICER", "VENDOR")
                                                             .anyRequest().permitAll())
                             .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class).build();
     }
