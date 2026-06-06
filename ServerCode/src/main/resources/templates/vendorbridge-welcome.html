@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to VendorBridge</title>
+</head>
+
+<body style="margin:0;padding:0;background-color:#f4f6f9;font-family:Arial, Helvetica, sans-serif;">
+
+    <table width="100%" cellpadding="0" cellspacing="0" border="0"
+        style="background-color:#f4f6f9;padding:30px 0;">
+        <tr>
+            <td align="center">
+
+                <table width="600" cellpadding="0" cellspacing="0" border="0"
+                    style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,0.08);">
+
+                    <!-- Header -->
+                    <tr>
+                        <td align="center"
+                            style="background:linear-gradient(135deg,#0f4c81,#1d72b8);padding:35px 20px;color:#ffffff;">
+
+                            <h1 style="margin:0;font-size:30px;font-weight:bold;">
+                                VendorBridge
+                            </h1>
+
+                            <p style="margin:10px 0 0;font-size:15px;opacity:0.95;">
+                                Smart Procurement & Vendor Management Platform
+                            </p>
+
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding:40px 35px;color:#333333;">
+
+                            <h2 style="margin-top:0;color:#0f4c81;font-size:24px;">
+                                Welcome, <span th:text="${name}">Vendor</span>
+                            </h2>
+
+                            <p style="font-size:15px;line-height:1.8;margin-bottom:20px;">
+                                We are pleased to inform you that your organization has been invited to join
+                                <strong>VendorBridge</strong>.
+                            </p>
+
+                            <p style="font-size:15px;line-height:1.8;margin-bottom:20px;">
+                                VendorBridge enables seamless collaboration between buyers and suppliers by providing a
+                                centralized platform for:
+                            </p>
+
+                            <ul style="font-size:15px;line-height:1.8;color:#444444;padding-left:20px;">
+                                <li>Receiving procurement requests</li>
+                                <li>Submitting quotations and bids</li>
+                                <li>Managing vendor information</li>
+                                <li>Tracking procurement activities</li>
+                                <li>Maintaining transparent communication with buyers</li>
+                            </ul>
+
+                            <p style="font-size:15px;line-height:1.8;margin-top:25px;">
+                                To activate your account and begin using the platform, please verify your email
+                                address by clicking the button below.
+                            </p>
+
+                            <div style="text-align:center;margin:35px 0;">
+                                <a th:href="${verificationUrl}"
+                                    style="background:#1d72b8;
+                                           color:#ffffff;
+                                           text-decoration:none;
+                                           padding:14px 32px;
+                                           border-radius:6px;
+                                           display:inline-block;
+                                           font-size:15px;
+                                           font-weight:bold;">
+                                    Verify Email Address
+                                </a>
+                            </div>
+
+                            <p style="font-size:13px;color:#777777;">
+                                If the button above does not work, copy and paste the following URL into your browser:
+                            </p>
+
+                            <p style="font-size:13px;color:#1d72b8;word-break:break-all;"
+                                th:text="${verificationUrl}">
+                                https://vendorbridge.com/verify
+                            </p>
+
+                            <hr style="border:none;border-top:1px solid #e5e7eb;margin:30px 0;">
+
+                            <p style="font-size:14px;line-height:1.7;color:#666666;">
+                                If you did not expect this invitation, you may safely ignore this email.
+                            </p>
+
+                            <p style="font-size:14px;line-height:1.7;color:#666666;">
+                                We look forward to building a successful partnership through VendorBridge.
+                            </p>
+
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td align="center"
+                            style="background:#f8fafc;padding:25px;color:#888888;font-size:12px;line-height:1.8;">
+
+                            <strong>VendorBridge</strong><br>
+                            Procurement & Vendor Collaboration Platform
+
+                            <br><br>
+
+                            © <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2026</span>
+                            VendorBridge. All rights reserved.
+
+                            <br><br>
+
+                            This is an automated email. Please do not reply directly to this message.
+
+                        </td>
+                    </tr>
+
+                </table>
+
+            </td>
+        </tr>
+    </table>
+
+</body>
+
+</html>
