@@ -4,6 +4,7 @@
 import { useState, ChangeEvent, ReactNode } from "react";
 import { tokens, ColorTokens, Theme } from "../colors/color";
 import { Link } from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface FormFields {
@@ -171,21 +172,37 @@ export default function ForgotPassword() {
   const [theme, setTheme] = useState<Theme>("dark");
   const t = tokens(theme);
 
+  const forgotPassword = useAuthStore((state) => state.forgotPassword);
+  const loading = useAuthStore((state) => state.loading);
+
   const [email, setEmail] = useState<string>("");
   const [errors, setErrors] = useState<FormErrors>({});
+  const [requestError, setRequestError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const errs = validate(email);
     setErrors(errs);
+    setRequestError(null);
+
     if (Object.keys(errs).length === 0) {
-      setSubmitted(true);
+      try {
+        await forgotPassword({ email });
+        setSubmitted(true);
+      } catch (error: any) {
+        setRequestError(
+          error?.response?.data?.message ||
+            error?.message ||
+            "Unable to send reset link. Please try again."
+        );
+      }
     }
   };
 
   const handleBack = () => {
     setEmail("");
     setErrors({});
+    setRequestError(null);
     setSubmitted(false);
   };
 
@@ -307,6 +324,7 @@ export default function ForgotPassword() {
                   onChange={(e) => {
                     setEmail(e.target.value);
                     setErrors({});
+                    setRequestError(null);
                   }}
                   placeholder="you@company.com"
                   t={t}
@@ -314,12 +332,18 @@ export default function ForgotPassword() {
                   hasError={!!errors.email}
                 />
               </Field>
+              {requestError && (
+                <p className="text-xs mt-2" style={{ color: t.error }}>
+                  ⚠ {requestError}
+                </p>
+              )}
             </div>
 
             {/* Send button */}
             <button
               onClick={handleSubmit}
-              className="w-full py-3.5 rounded-xl text-base font-bold transition-all hover:scale-105 focus:outline-none"
+              disabled={loading}
+              className="w-full py-3.5 rounded-xl text-base font-bold transition-all hover:scale-105 focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
               style={{
                 background: t.btnBg,
                 color: t.btnText,
@@ -328,19 +352,23 @@ export default function ForgotPassword() {
                 boxShadow: `0 4px 16px ${t.accentGlow}`,
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.background =
-                  t.btnHover;
-                (e.currentTarget as HTMLButtonElement).style.transform =
-                  "translateY(-1px)";
+                if (!loading) {
+                  (e.currentTarget as HTMLButtonElement).style.background =
+                    t.btnHover;
+                  (e.currentTarget as HTMLButtonElement).style.transform =
+                    "translateY(-1px)";
+                }
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.background =
-                  t.btnBg;
-                (e.currentTarget as HTMLButtonElement).style.transform =
-                  "translateY(0)";
+                if (!loading) {
+                  (e.currentTarget as HTMLButtonElement).style.background =
+                    t.btnBg;
+                  (e.currentTarget as HTMLButtonElement).style.transform =
+                    "translateY(0)";
+                }
               }}
             >
-              Send Reset Link
+              {loading ? "Sending..." : "Send Reset Link"}
             </button>
 
             <p
