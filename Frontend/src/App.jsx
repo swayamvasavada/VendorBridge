@@ -62,11 +62,21 @@ function AppContent() {
         <Route path="/vendors" element={<VendorPage/>} />
         <Route path="/rfqs" element={<Dashboard />} />
         <Route path="/quotations" element={<Dashboard />} />
+        <Route path="/compare-quotations" element={<Dashboard />} />
         <Route path="/approvals" element={<Dashboard />} />
         <Route path="/purchase-orders" element={<Dashboard />} />
         <Route path="/invoices" element={<Dashboard />} />
+        <Route path="/vendors" element={<Dashboard />} />
         <Route path="/reports" element={<Dashboard />} />
-        <Route path="/activity" element={<Dashboard />} />
+        <Route path="/activity-logs" element={<Dashboard />} />
+        <Route path="/settings" element={<Dashboard />} />
+        <Route path="/my-rfqs" element={<Dashboard />} />
+        <Route path="/my-quotations" element={<Dashboard />} />
+        <Route path="/payments" element={<Dashboard />} />
+        <Route path="/notifications" element={<Dashboard />} />
+        <Route path="/profile" element={<Dashboard />} />
+        <Route path="/procurement-requests" element={<Dashboard />} />
+        <Route path="/audit-logs" element={<Dashboard />} />
       </Routes>
     </>
   );

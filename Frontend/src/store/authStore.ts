@@ -1,6 +1,11 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import axios from "axios";
-import { Login, forgotPassword as forgotPasswordPath, vendorRegistration as vendorRegistrationPath } from "../apiPath";
+import {
+  Login,
+  forgotPassword as forgotPasswordPath,
+  vendorRegistration as vendorRegistrationPath,
+} from "../apiPath";
 
 interface LoginPayload {
   email: string;
@@ -21,100 +26,106 @@ interface VendorRegistrationPayload {
   additionalInfo: string;
 }
 
-interface AuthState {
-  loading: boolean;
-  login: (payload: LoginPayload) => Promise<any>;
-  forgotPassword: (payload: ForgotPasswordPayload) => Promise<any>;
-  vendorRegistration: (payload: VendorRegistrationPayload) => Promise<any>;
+export interface AuthUser {
+  name: string;
+  email: string;
+  role: string;
+  token: string;
+  isVerified: boolean;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  loading: false,
+interface AuthState {
+  loading: boolean;
+  user: AuthUser | null;
 
-  login: async (payload) => {
-    try {
-      set({ loading: true });
+  setUser: (user: AuthUser | null) => void;
+  logout: () => void;
 
-      console.log("========== LOGIN REQUEST ==========");
-      console.log("URL:", Login);
-      console.log("Payload:", payload);
+  login: (payload: LoginPayload) => Promise<any>;
+  forgotPassword: (payload: ForgotPasswordPayload) => Promise<any>;
+  vendorRegistration: (
+    payload: VendorRegistrationPayload
+  ) => Promise<any>;
+}
 
-      const response = await axios.post(Login, payload);
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      loading: false,
 
-      console.log("========== LOGIN RESPONSE ==========");
-      console.log("Status:", response.status);
-      console.log("Data:", response.data);
+      user: null,
 
-      set({ loading: false });
+      setUser: (user) => set({ user }),
 
-      return response.data;
-    } catch (error: any) {
-      set({ loading: false });
+      logout: () => {
+        set({ user: null });
+      },
 
-      console.log("========== LOGIN ERROR ==========");
-      console.log("Message:", error.message);
-      console.log("Response:", error.response?.data);
-      console.log("Status:", error.response?.status);
+      login: async (payload) => {
+        try {
+          set({ loading: true });
 
-      throw error;
+          const response = await axios.post(
+            Login,
+            payload
+          );
+
+          const user =
+            response.data.serviceResult;
+
+          set({
+            loading: false,
+            user,
+          });
+
+          return response.data;
+        } catch (error) {
+          set({ loading: false });
+          throw error;
+        }
+      },
+
+      forgotPassword: async (payload) => {
+        try {
+          set({ loading: true });
+
+          const response = await axios.post(
+            forgotPasswordPath,
+            payload
+          );
+
+          set({ loading: false });
+
+          return response.data;
+        } catch (error) {
+          set({ loading: false });
+          throw error;
+        }
+      },
+
+      vendorRegistration: async (payload) => {
+        try {
+          set({ loading: true });
+
+          const response = await axios.post(
+            vendorRegistrationPath,
+            payload
+          );
+
+          set({ loading: false });
+
+          return response.data;
+        } catch (error) {
+          set({ loading: false });
+          throw error;
+        }
+      },
+    }),
+    {
+      name: "vendorbridge-auth",
+      partialize: (state) => ({
+        user: state.user,
+      }),
     }
-  },
-
-  forgotPassword: async (payload) => {
-    try {
-      set({ loading: true });
-
-      console.log("===== FORGOT PASSWORD REQUEST =====");
-      console.log("URL:", forgotPasswordPath);
-      console.log("Payload:", payload);
-
-      const response = await axios.post(forgotPasswordPath, payload);
-
-      console.log("===== FORGOT PASSWORD RESPONSE =====");
-      console.log("Status:", response.status);
-      console.log("Data:", response.data);
-
-      set({ loading: false });
-
-      return response.data;
-    } catch (error: any) {
-      set({ loading: false });
-
-      console.log("===== FORGOT PASSWORD ERROR =====");
-      console.log("Message:", error.message);
-      console.log("Response:", error.response?.data);
-      console.log("Status:", error.response?.status);
-
-      throw error;
-    }
-  },
-
-  vendorRegistration: async (payload) => {
-    try {
-      set({ loading: true });
-
-      console.log("===== VENDOR REGISTRATION REQUEST =====");
-      console.log("URL:", vendorRegistrationPath);
-      console.log("Payload:", payload);
-
-      const response = await axios.post(vendorRegistrationPath, payload);
-
-      console.log("===== VENDOR REGISTRATION RESPONSE =====");
-      console.log("Status:", response.status);
-      console.log("Data:", response.data);
-
-      set({ loading: false });
-
-      return response.data;
-    } catch (error: any) {
-      set({ loading: false });
-
-      console.log("===== VENDOR REGISTRATION ERROR =====");
-      console.log("Message:", error.message);
-      console.log("Response:", error.response?.data);
-      console.log("Status:", error.response?.status);
-
-      throw error;
-    }
-  },
-}));
+  )
+);

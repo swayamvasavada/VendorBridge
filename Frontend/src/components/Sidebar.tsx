@@ -1,19 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { ColorTokens } from "../colors/color";
-
-const navItems = [
-  { label: "Dashboard", path: "/dashboard", icon: "M3 12h18M3 6h18M3 18h18" },
-  { label: "Vendors", path: "/vendors", icon: "M12 12a5 5 0 100-10 5 5 0 000 10zm-9 8c0-3.866 3.134-7 7-7h4c3.866 0 7 3.134 7 7" },
-  { label: "RFQ's", path: "/rfqs", icon: "M4 7h16M4 12h16M4 17h16" },
-  { label: "Quotations", path: "/quotations", icon: "M9 12h6M9 16h6M12 4v16" },
-  { label: "Approvals", path: "/approvals", icon: "M5 13l4 4L19 7" },
-  { label: "Purchase orders", path: "/purchase-orders", icon: "M5 3h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" },
-  { label: "Invoices", path: "/invoices", icon: "M9 8h6M9 12h6M9 16h4M7 4h10l3 3v11a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z" },
-  { label: "Reports", path: "/reports", icon: "M6 18V6m6 12V10m6 8V13" },
-  { label: "Activity", path: "/activity", icon: "M12 8v8m4-4H8" },
-];
+import { DashboardNavItem } from "../config/dashboardConfig";
 
 function Icon({
   d,
@@ -40,11 +29,16 @@ function Icon({
 
 export default function Sidebar({
   t,
+  navItems,
 }: {
   t: ColorTokens;
+  navItems: DashboardNavItem[];
 }) {
   const location = useLocation();
   const activePath = location.pathname;
+  useEffect(() => {
+  setMobileOpen(false);
+}, [location.pathname]);
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
