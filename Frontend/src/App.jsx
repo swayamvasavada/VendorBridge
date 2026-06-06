@@ -1,8 +1,4 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import { Toaster } from "react-hot-toast";
 import "./App.css";
@@ -12,6 +8,8 @@ import SignUp from "./pages/SignUp";
 import ForgetPassword from "./pages/ForgotPassword";
 import VendorPage from "./pages/Vendors";
 import CreateRFQPage from "./pages/RFQ";
+import UserManagement from "./pages/UserManagement";
+import VerifyEmail from "./pages/VerifyEmail";
 
 function AppContent() {
   return (
@@ -29,8 +27,7 @@ function AppContent() {
             padding: "16px",
             fontSize: "14px",
             fontWeight: "500",
-            boxShadow:
-              "0 10px 25px rgba(0,0,0,0.25)",
+            boxShadow: "0 10px 25px rgba(0,0,0,0.25)",
           },
 
           success: {
@@ -62,6 +59,9 @@ function AppContent() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/vendors" element={<VendorPage/>} />
         <Route path="/rfqs" element={<CreateRFQPage />} />
+        <Route path="/vendors" element={<VendorPage />} />
+        <Route path="/user-management" element={<UserManagement />} />
+        <Route path="/rfqs" element={<Dashboard />} />
         <Route path="/quotations" element={<Dashboard />} />
         <Route path="/compare-quotations" element={<Dashboard />} />
         <Route path="/approvals" element={<Dashboard />} />
@@ -78,6 +78,7 @@ function AppContent() {
         <Route path="/profile" element={<Dashboard />} />
         <Route path="/procurement-requests" element={<Dashboard />} />
         <Route path="/audit-logs" element={<Dashboard />} />
+        <Route path="/user/verify/:token" element={<VerifyEmail />} />
       </Routes>
     </>
   );
