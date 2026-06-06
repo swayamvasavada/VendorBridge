@@ -30,12 +30,14 @@ function Icon({
 export default function Sidebar({
   t,
   navItems,
+  activePathOverride,
 }: {
   t: ColorTokens;
   navItems?: DashboardNavItem[];
+  activePathOverride?: string;
 }) {
   const location = useLocation();
-  const activePath = location.pathname;
+  const activePath = activePathOverride ?? location.pathname;
   const items = navItems ?? [];
   const [mobileOpen, setMobileOpen] = useState(false);
 

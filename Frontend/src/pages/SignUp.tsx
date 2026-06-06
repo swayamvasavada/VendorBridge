@@ -16,6 +16,8 @@ interface Fields {
   phone:           string;
   role:            UserRole | "";
   country:         string;
+  gstNumber:       string;   // Added
+  category:        string;   // Added
   additionalInfo:  string;
   password:        string;
   confirmPassword: string;
@@ -29,6 +31,8 @@ interface Errors {
   phone?:           string;
   role?:            string;
   country?:         string;
+  gstNumber?:       string;  // Added
+  category?:        string;  // Added
   password?:        string;
   confirmPassword?: string;
   agreed?:          string;
@@ -42,6 +46,14 @@ const ROLE_OPTIONS = [
   { label: "Manager", value: "MANAGER" as UserRole },
 ];
 
+const CATEGORY_OPTIONS = [
+  { label: "Furniture", value: "furniture" },
+  { label: "IT & Hardware", value: "it_hardware" },
+  { label: "Logistics", value: "logistics" },
+  { label: "Raw Materials", value: "raw_materials" },
+  { label: "Office Supplies", value: "office_supplies" },
+];
+
 interface SelectInputProps {
   value: string;
   onChange: (e: ChangeEvent<HTMLSelectElement>) => void;
@@ -53,7 +65,7 @@ interface SelectInputProps {
 
 const EMPTY_FIELDS: Fields = {
   firstName:"", lastName:"", email:"", phone:"", role:"", country:"",
-  additionalInfo:"", password:"", confirmPassword:"", agreed:false,
+  gstNumber: "", category: "", additionalInfo:"", password:"", confirmPassword:"", agreed:false,
 };
 
 // ─── Validation ───────────────────────────────────────────────────────────────
@@ -66,6 +78,15 @@ function validate(f: Fields): Errors {
   if (!f.phone.trim())           e.phone           = "Phone number is required";
   if (!f.role)                   e.role            = "Select a role";
   if (!f.country)                e.country         = "Select a country";
+  
+  // GST Number validation
+  if (!f.gstNumber.trim()) {
+    e.gstNumber = "GST number is required";
+  } else if (!/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(f.gstNumber.trim().toUpperCase())) {
+    e.gstNumber = "Enter a valid 15-character GSTIN format";
+  }
+
+  if (!f.category)               e.category        = "Select a business category";
   if (!f.password)               e.password        = "Password is required";
   else if (f.password.length < 8) e.password       = "Minimum 8 characters";
   if (f.confirmPassword !== f.password) e.confirmPassword = "Passwords don't match";
@@ -100,6 +121,15 @@ const PhoneIcon = ({ color }: { color: string }) => (
     <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.09 12.3a19.79 19.79 0 01-3.07-8.67A2 2 0 012 1.84h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 9.91a16 16 0 006 6z"/>
   </svg>
 );
+const FileTextIcon = ({ color }: { color: string }) => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+    <polyline points="14 2 14 8 20 8"></polyline>
+    <line x1="16" y1="13" x2="8" y2="13"></line>
+    <line x1="16" y1="17" x2="8" y2="17"></line>
+    <polyline points="10 9 9 9 8 9"></polyline>
+  </svg>
+);
 const EyeOpen = ({ color }: { color: string }) => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
@@ -129,14 +159,6 @@ const SunIcon = ({ color }: { color: string }) => (
 const MoonIcon = ({ color }: { color: string }) => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-  </svg>
-);
-const GoogleIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24">
-    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
   </svg>
 );
 
@@ -381,6 +403,8 @@ export default function SignUpPage() {
           phoneNo: fields.phone,
           userRole: fields.role,
           companyName: fields.country,
+          gstNumber: fields.gstNumber.trim().toUpperCase(), 
+          category: fields.category,                        
           additionalInfo: fields.additionalInfo,
         });
         setSubmitted(true);
@@ -521,6 +545,30 @@ export default function SignUpPage() {
               </Field>
             </div>
 
+            {/* Row 4: GST Number + Category */}
+            <div className={row2}>
+              <Field label="GST Number" error={errors.gstNumber} t={t}>
+                <TextInput 
+                  value={fields.gstNumber} 
+                  onChange={set("gstNumber")} 
+                  placeholder="22AAAAA0000A1Z5" 
+                  t={t} 
+                  icon={<FileTextIcon color={t.textMuted}/>}
+                  hasError={!!errors.gstNumber}
+                />
+              </Field>
+              <Field label="Business Category" error={errors.category} t={t}>
+                <SelectInput
+                  value={fields.category}
+                  onChange={set("category")}
+                  options={CATEGORY_OPTIONS}
+                  placeholder="Select category…"
+                  t={t}
+                  hasError={!!errors.category}
+                />
+              </Field>
+            </div>
+
             {/* Additional info */}
             <div className="mb-3.5">
               <Field label="Additional Information" t={t}>
@@ -541,7 +589,7 @@ export default function SignUpPage() {
               </Field>
             </div>
 
-            {/* Row 4: Password + Confirm */}
+            {/* Row 5: Password + Confirm */}
             <div className={row2 + " mb-1"}>
               <Field label="Password" error={errors.password} t={t}>
                 <TextInput

@@ -25,6 +25,8 @@ interface VendorRegistrationPayload {
   userRole: string;
   companyName: string;
   additionalInfo: string;
+  gstNumber:string;
+  category:string;
 }
 
 export interface AuthUser {
