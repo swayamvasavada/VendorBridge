@@ -21,7 +21,8 @@ interface VendorRegistrationPayload {
   email: string;
   password: string;
   phoneNo: string;
-  role: string;
+  role?: string;
+  userRole: string;
   companyName: string;
   additionalInfo: string;
 }

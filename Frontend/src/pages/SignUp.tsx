@@ -2,17 +2,19 @@
 // Uses color tokens from colors.ts. All styles are inline via the `t` token object.
 
 import { useState, ChangeEvent, ReactNode } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { tokens, ColorTokens, Theme } from "../colors/color";
-import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+type UserRole = "ADMIN" | "PROCUREMENT_OFFICER" | "MANAGER" | "VENDOR";
+
 interface Fields {
   firstName:       string;
   lastName:        string;
   email:           string;
   phone:           string;
-  role:            string;
+  role:            UserRole | "";
   country:         string;
   additionalInfo:  string;
   password:        string;
@@ -33,7 +35,21 @@ interface Errors {
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const ROLES    = ["Admin","Procurement Officer","Vendor","Manager"];
+const ROLE_OPTIONS = [
+  { label: "Admin", value: "ADMIN" as UserRole },
+  { label: "Procurement Officer", value: "PROCUREMENT_OFFICER" as UserRole },
+  { label: "Vendor", value: "VENDOR" as UserRole },
+  { label: "Manager", value: "MANAGER" as UserRole },
+];
+
+interface SelectInputProps {
+  value: string;
+  onChange: (e: ChangeEvent<HTMLSelectElement>) => void;
+  options: { label: string; value: string }[];
+  placeholder: string;
+  t: ColorTokens;
+  hasError?: boolean;
+}
 
 const EMPTY_FIELDS: Fields = {
   firstName:"", lastName:"", email:"", phone:"", role:"", country:"",
@@ -204,10 +220,7 @@ function TextInput({
 // Select input
 function SelectInput({
   value, onChange, options, placeholder, t, hasError,
-}: {
-  value: string; onChange: (e: ChangeEvent<HTMLSelectElement>) => void;
-  options: string[]; placeholder: string; t: ColorTokens; hasError?: boolean;
-}) {
+}: SelectInputProps) {
   const [focused, setFocused] = useState(false);
   const [hovered, setHovered] = useState(false);
 
@@ -237,7 +250,11 @@ function SelectInput({
       }}
     >
       <option value="" disabled>{placeholder}</option>
-      {options.map(o => <option key={o} value={o}>{o}</option>)}
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
     </select>
   );
 }
@@ -328,12 +345,14 @@ function SuccessScreen({ t, onBack }: { t: ColorTokens; onBack: () => void }) {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function SignUpPage() {
+  const location = useLocation();
+  const vendorOnly = new URLSearchParams(location.search).get("vendorOnly") === "true";
   const [theme, setTheme] = useState<Theme>("dark");
   const t = tokens(theme);
 
   const { vendorRegistration, loading } = useAuthStore();
 
-  const [fields, setFields]       = useState<Fields>(EMPTY_FIELDS);
+  const [fields, setFields]       = useState<Fields>(vendorOnly ? { ...EMPTY_FIELDS, role: "VENDOR" } : EMPTY_FIELDS);
   const [errors, setErrors]       = useState<Errors>({});
   const [requestError, setRequestError] = useState<string | null>(null);
   const [showPwd, setShowPwd]     = useState(false);
@@ -360,7 +379,7 @@ export default function SignUpPage() {
           email: fields.email,
           password: fields.password,
           phoneNo: fields.phone,
-          role: fields.role,
+          userRole: fields.role,
           companyName: fields.country,
           additionalInfo: fields.additionalInfo,
         });
@@ -487,8 +506,15 @@ export default function SignUpPage() {
 
             {/* Row 3: Role + Country */}
             <div className={row2}>
-              <Field label="Role (Admin, Officer)" error={errors.role} t={t}>
-                <SelectInput value={fields.role} onChange={set("role")} options={ROLES} placeholder="Select role…" t={t} hasError={!!errors.role}/>
+              <Field label="User Role" error={errors.role} t={t}>
+                <SelectInput
+                  value={fields.role}
+                  onChange={set("role")}
+                  options={vendorOnly ? [{ label: "Vendor", value: "VENDOR" }] : ROLE_OPTIONS}
+                  placeholder={vendorOnly ? "Vendor" : "Select role…"}
+                  t={t}
+                  hasError={!!errors.role}
+                />
               </Field>
               <Field label="Country" error={errors.country} t={t}>
                 <TextInput value={fields.country} onChange={set("country")} placeholder="e.g. India" t={t} hasError={!!errors.country}/>

@@ -57,7 +57,7 @@ export const dashboardConfigs: Record<RoleKey, DashboardConfig> = {
     sidebarItems: [
       { label: "Dashboard", path: "/dashboard", icon: "M3 12h18M3 6h18M3 18h18" },
       { label: "User Management", path: "/user-management", icon: "M12 12a5 5 0 100-10 5 5 0 000 10zm-9 8c0-3.866 3.134-7 7-7h4c3.866 0 7 3.134 7 7" },
-      { label: "Vendor Management", path: "/vendor-management", icon: "M16 11c1.657 0 3-1.343 3-3S17.657 5 16 5s-3 1.343-3 3 1.343 3 3 3zM8 7H6c-1.105 0-2 .895-2 2v7h6v-7c0-1.105-.895-2-2-2zM8 16H2v1c0 1.105.895 2 2 2h4c1.105 0 2-.895 2-2v-1z" },
+      { label: "Vendor Management", path: "/vendors", icon: "M16 11c1.657 0 3-1.343 3-3S17.657 5 16 5s-3 1.343-3 3 1.343 3 3 3zM8 7H6c-1.105 0-2 .895-2 2v7h6v-7c0-1.105-.895-2-2-2zM8 16H2v1c0 1.105.895 2 2 2h4c1.105 0 2-.895 2-2v-1z" },
       { label: "RFQs", path: "/rfqs", icon: "M4 7h16M4 12h16M4 17h16" },
       { label: "Quotations", path: "/quotations", icon: "M9 12h6M9 16h6M12 4v16" },
       { label: "Approvals", path: "/approvals", icon: "M5 13l4 4L19 7" },

@@ -32,10 +32,11 @@ export default function Sidebar({
   navItems,
 }: {
   t: ColorTokens;
-  navItems: DashboardNavItem[];
+  navItems?: DashboardNavItem[];
 }) {
   const location = useLocation();
   const activePath = location.pathname;
+  const items = navItems ?? [];
   useEffect(() => {
   setMobileOpen(false);
 }, [location.pathname]);
@@ -63,7 +64,7 @@ export default function Sidebar({
           </div>
 
           <div className="space-y-2">
-            {navItems.map((item) => {
+            {items.map((item) => {
               const isActive = item.path === activePath;
 
               return (
@@ -202,7 +203,7 @@ export default function Sidebar({
 
         {/* Menu */}
         <div className="p-4 space-y-2 overflow-y-auto">
-          {navItems.map((item) => {
+          {items.map((item) => {
             const isActive =
               item.path === activePath;
 

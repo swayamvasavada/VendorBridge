@@ -629,7 +629,7 @@ export default function LoginPage() {
         >
           Don't have an account?{" "}
           <Link
-            to="/signup"
+            to="/signup?vendorOnly=true"
             style={{
               color: t.accent,
               fontWeight: 600,
