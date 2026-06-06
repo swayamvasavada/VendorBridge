@@ -1,10 +1,8 @@
-// LoginPage.tsx — ProcureOS Sign In Screen
-// Uses color tokens from colors.ts. All styles are inline via the `t` token object.
-
 import { useState, ChangeEvent, CSSProperties, ReactNode } from "react";
 import { tokens, ColorTokens, Theme } from "../colors/color";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
+import toast from "react-hot-toast";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Fields {
@@ -172,9 +170,9 @@ export default function LoginPage() {
   if (Object.keys(errs).length > 0) return;
 
   try {
-    console.log("Login Button Clicked");
-    console.log("Email:", fields.email);
-    console.log("Password:", fields.password);
+    toast.loading("Logging in...", {
+      id: "login",
+    });
 
     const response = await login({
       email: fields.email,
@@ -182,8 +180,24 @@ export default function LoginPage() {
     });
 
     console.log("Final Response:", response);
-  } catch (error) {
+
+    toast.success(
+      response?.message || "Login Successful",
+      {
+        id: "login",
+      }
+    );
+  } catch (error: any) {
     console.log("Login Failed:", error);
+
+    toast.error(
+      error?.response?.data?.message ||
+      error?.message ||
+      "Login Failed",
+      {
+        id: "login",
+      }
+    );
   }
 };
 
