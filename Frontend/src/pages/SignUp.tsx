@@ -3,6 +3,7 @@
 
 import { useState, ChangeEvent, ReactNode } from "react";
 import { tokens, ColorTokens, Theme } from "../colors/color";
+import { Link } from "react-router-dom";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Fields {
@@ -559,7 +560,17 @@ export default function SignUpPage() {
 
             <p className="text-center mt-3.5 text-sm" style={{ color: t.textMuted }}>
               Already have an account?{" "}
-              <span style={{ color: t.accent, fontWeight: 600, cursor: "pointer" }}>Sign in</span>
+              <Link
+                to="/"
+                style={{
+                  color: t.accent,
+                  fontWeight: 600,
+                  textDecoration: "none",
+                  cursor: "pointer",
+                }}
+              >
+                Sign in
+              </Link>
             </p>
           </>
         )}

@@ -3,6 +3,7 @@
 
 import { useState, ChangeEvent, ReactNode } from "react";
 import { tokens, ColorTokens, Theme } from "../colors/color";
+import { Link } from "react-router-dom";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface FormFields {
@@ -228,19 +229,40 @@ export default function ForgotPassword() {
         <div className="flex items-center justify-between mb-10 relative">
           {/* Logo */}
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: t.accent }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={t.btnText} strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+            <div
+              className="w-9 h-9 rounded-lg flex items-center justify-center"
+              style={{ background: t.accent }}
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke={t.btnText}
+                strokeWidth="2.3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                <polyline points="9 22 9 12 15 12 15 22" />
               </svg>
             </div>
             <div>
-              <div className="text-sm md:text-base font-bold" style={{ color: t.textPrimary, fontFamily: "'Sora', sans-serif" }}>VendorBridge</div>
+              <div
+                className="text-sm md:text-base font-bold"
+                style={{
+                  color: t.textPrimary,
+                  fontFamily: "'Sora', sans-serif",
+                }}
+              >
+                VendorBridge
+              </div>
             </div>
           </div>
 
           {/* Theme toggle */}
           <button
-            onClick={() => setTheme(th => th === "dark" ? "light" : "dark")}
+            onClick={() => setTheme((th) => (th === "dark" ? "light" : "dark"))}
             className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5"
             style={{
               background: t.bgCard,
@@ -250,17 +272,31 @@ export default function ForgotPassword() {
               fontFamily: "'DM Sans', sans-serif",
             }}
           >
-            {theme === "dark" ? <SunIcon color={t.textMuted}/> : <MoonIcon color={t.textMuted}/>}
-            <span className="hidden xs:inline">{theme === "dark" ? "Light" : "Dark"}</span>
+            {theme === "dark" ? (
+              <SunIcon color={t.textMuted} />
+            ) : (
+              <MoonIcon color={t.textMuted} />
+            )}
+            <span className="hidden xs:inline">
+              {theme === "dark" ? "Light" : "Dark"}
+            </span>
           </button>
         </div>
 
         {submitted ? (
-          <EmailSentScreen t={t} onBack={handleBack}/>
+          <EmailSentScreen t={t} onBack={handleBack} />
         ) : (
           <>
-            <h1 className="text-xl md:text-2xl font-black mb-2" style={{ color: t.textPrimary, fontFamily: "'Sora', sans-serif" }}>Forgot Password?</h1>
-            <p className="text-sm mb-8" style={{ color: t.textMuted }}>Enter your email address and we'll send you a link to reset your password.</p>
+            <h1
+              className="text-xl md:text-2xl font-black mb-2"
+              style={{ color: t.textPrimary, fontFamily: "'Sora', sans-serif" }}
+            >
+              Forgot Password?
+            </h1>
+            <p className="text-sm mb-8" style={{ color: t.textMuted }}>
+              Enter your email address and we'll send you a link to reset your
+              password.
+            </p>
 
             {/* Email field */}
             <div className="mb-6">
@@ -274,7 +310,7 @@ export default function ForgotPassword() {
                   }}
                   placeholder="you@company.com"
                   t={t}
-                  icon={<MailIcon color={t.textMuted}/>}
+                  icon={<MailIcon color={t.textMuted} />}
                   hasError={!!errors.email}
                 />
               </Field>
@@ -291,15 +327,38 @@ export default function ForgotPassword() {
                 letterSpacing: "-0.01em",
                 boxShadow: `0 4px 16px ${t.accentGlow}`,
               }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = t.btnHover; (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)"; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = t.btnBg; (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)"; }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.background =
+                  t.btnHover;
+                (e.currentTarget as HTMLButtonElement).style.transform =
+                  "translateY(-1px)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.background =
+                  t.btnBg;
+                (e.currentTarget as HTMLButtonElement).style.transform =
+                  "translateY(0)";
+              }}
             >
               Send Reset Link
             </button>
 
-            <p className="text-center mt-5 text-sm" style={{ color: t.textMuted }}>
+            <p
+              className="text-center mt-5 text-sm"
+              style={{ color: t.textMuted }}
+            >
               Remember your password?{" "}
-              <span style={{ color: t.accent, fontWeight: 600, cursor: "pointer" }}>Sign in</span>
+              <Link
+                to="/"
+                style={{
+                  color: t.accent,
+                  fontWeight: 600,
+                  textDecoration: "none",
+                  cursor: "pointer",
+                }}
+              >
+                Sign in
+              </Link>
             </p>
           </>
         )}
