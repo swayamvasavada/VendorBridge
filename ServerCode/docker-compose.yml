@@ -1,0 +1,6 @@
+services:
+  vendor-bridge:
+    build: .
+    container_name: vendor-bridge
+    ports:
+      - "5000:8080"
