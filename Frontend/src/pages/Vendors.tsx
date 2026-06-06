@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { tokens, Theme } from "../colors/color";
 import Sidebar from "../components/Sidebar";
+import { dashboardConfigs, RoleKey } from "../config/dashboardConfig";
+import { useAuthStore } from "../store/authStore";
 
-// Updated structure to support an address field
 interface Vendor {
   id: number;
   name: string;
@@ -10,7 +11,7 @@ interface Vendor {
   gst: string;
   contact: string;
   status: string;
-  address: string; // Added address property
+  address: string;
 }
 
 const initialVendors: Vendor[] = [
@@ -44,19 +45,37 @@ const initialVendors: Vendor[] = [
 ];
 
 export default function VendorPage() {
-  const theme: Theme = "dark";
+  const theme: Theme = "dark"; // Or hook it to the theme state if you build theme-switching later
   const t = tokens(theme);
 
-  // Core Functional States
+  // Grab the same authenticated user context as the Dashboard
+  const user = useAuthStore((state) => state.user);
+
+  // Compute the dynamic configuration matching the sidebar navigation
+  const role = useMemo<RoleKey>(() => {
+    switch (user?.role?.toUpperCase()) {
+      case "ADMIN":
+        return "admin";
+      case "VENDOR":
+        return "vendor";
+      case "PROCUREMENT_OFFICER":
+        return "procurement_officer";
+      case "MANAGER":
+      case "APPROVER":
+        return "manager";
+      default:
+        return "admin";
+    }
+  }, [user]);
+
+  const dashboard = dashboardConfigs[role] ?? dashboardConfigs.admin;
+
   const [vendors, setVendors] = useState<Vendor[]>(initialVendors);
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
-
-  // Modal Control States
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
 
-  // Add Vendor Form Temporary State (with added address property)
   const [newVendor, setNewVendor] = useState({
     name: "",
     category: "Construction",
@@ -66,20 +85,18 @@ export default function VendorPage() {
     address: "",
   });
 
-  // Handle addition submission
   const handleAddVendor = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newVendor.name || !newVendor.gst || !newVendor.contact || !newVendor.address) return;
 
     const vendorToAdd: Vendor = {
-      id: Date.now(), // Generate a unique mock ID
+      id: Date.now(),
       ...newVendor,
     };
 
     setVendors([vendorToAdd, ...vendors]);
     setIsAddModalOpen(false);
-    
-    // Reset form state completely
+
     setNewVendor({
       name: "",
       category: "Construction",
@@ -90,16 +107,13 @@ export default function VendorPage() {
     });
   };
 
-  // Filter logic matching search text against Name, GST, or Category + Status Filter
   const filteredVendors = vendors.filter((vendor) => {
     const matchesSearch =
       vendor.name.toLowerCase().includes(search.toLowerCase()) ||
       vendor.gst.toLowerCase().includes(search.toLowerCase()) ||
       vendor.category.toLowerCase().includes(search.toLowerCase());
 
-    const matchesFilter =
-      activeFilter === "All" || vendor.status === activeFilter;
-
+    const matchesFilter = activeFilter === "All" || vendor.status === activeFilter;
     return matchesSearch && matchesFilter;
   });
 
@@ -113,13 +127,16 @@ export default function VendorPage() {
       }}
     >
       <div className="max-w-[1600px] mx-auto px-4 py-5 md:px-6 md:py-6">
+        {/* Layout Grid wrapping sidebar and contents cleanly */}
         <div className="grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)]">
-          <Sidebar t={t} />
+          
+          {/* Synchronized Sidebar component feeding data dynamically */}
+          <Sidebar t={t} navItems={dashboard.sidebarItems} />
 
           <main className="space-y-6 min-w-0 w-full">
             {/* Header */}
             <section
-              className="rounded-3xl border p-6"
+              className="rounded-[28px] border p-6"
               style={{
                 background: t.bgSurface,
                 borderColor: t.borderDefault,
@@ -131,16 +148,11 @@ export default function VendorPage() {
                     className="text-sm uppercase tracking-[0.25em] font-semibold"
                     style={{ color: t.textLabel }}
                   >
-                    VendorBridge
+                    VendorBridge • {dashboard.roleLabel}
                   </div>
-
-                  <h1
-                    className="mt-3 text-3xl font-black"
-                    style={{ color: t.textPrimary }}
-                  >
+                  <h1 className="mt-3 text-3xl font-black" style={{ color: t.textPrimary }}>
                     Vendors
                   </h1>
-
                   <p className="mt-2 text-sm" style={{ color: t.textMuted }}>
                     Manage supplier profiles and registrations
                   </p>
@@ -151,7 +163,7 @@ export default function VendorPage() {
                   className="rounded-2xl px-5 py-3 text-sm font-semibold transition hover:opacity-90"
                   style={{
                     background: t.accent,
-                    color: t.textOnAccent || t.btnText,
+                    color: t.textOnAccent,
                   }}
                 >
                   + Add Vendor
@@ -168,7 +180,7 @@ export default function VendorPage() {
               }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={t.textMuted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
               <input
                 type="text"
@@ -176,9 +188,7 @@ export default function VendorPage() {
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by vendor name, GST number, category..."
                 className="w-full bg-transparent outline-none text-sm"
-                style={{
-                  color: t.textPrimary,
-                }}
+                style={{ color: t.textPrimary }}
               />
             </section>
 
@@ -193,7 +203,7 @@ export default function VendorPage() {
                     className="rounded-full px-5 py-2 text-sm font-semibold transition"
                     style={{
                       background: isSelected ? t.accent : t.bgCard,
-                      color: isSelected ? (t.textOnAccent || t.btnText) : t.textPrimary,
+                      color: isSelected ? t.textOnAccent : t.textPrimary,
                       border: `1px solid ${isSelected ? t.accent : t.borderDefault}`,
                       cursor: "pointer"
                     }}
@@ -204,9 +214,9 @@ export default function VendorPage() {
               })}
             </div>
 
-            {/* Vendor Table (Address hidden here to save horizontal space) */}
+            {/* Vendor Table */}
             <section
-              className="rounded-3xl border p-6 overflow-x-auto"
+              className="rounded-[28px] border p-6 overflow-x-auto"
               style={{
                 background: t.bgSurface,
                 borderColor: t.borderDefault,
@@ -214,13 +224,7 @@ export default function VendorPage() {
             >
               <table className="w-full border-collapse">
                 <thead>
-                  <tr
-                    className="border-b text-xs uppercase tracking-wider font-bold"
-                    style={{
-                      borderColor: t.borderDefault,
-                      color: t.textLabel
-                    }}
-                  >
+                  <tr className="border-b text-xs uppercase tracking-wider font-bold" style={{ borderColor: t.borderDefault, color: t.textLabel }}>
                     <th className="text-left py-4 px-2">Vendor Name</th>
                     <th className="text-left py-4 px-2">Category</th>
                     <th className="text-left py-4 px-2">GST No.</th>
@@ -229,54 +233,30 @@ export default function VendorPage() {
                     <th className="text-left py-4 px-2">Action</th>
                   </tr>
                 </thead>
-
                 <tbody>
                   {filteredVendors.length > 0 ? (
                     filteredVendors.map((vendor) => (
-                      <tr
-                        key={vendor.id}
-                        className="border-b last:border-b-0 transition-colors"
-                        style={{
-                          borderColor: t.borderSubtle,
-                        }}
-                      >
+                      <tr key={vendor.id} className="border-b last:border-b-0 transition-colors" style={{ borderColor: t.borderSubtle }}>
                         <td className="py-4 px-2 font-medium">{vendor.name}</td>
                         <td className="py-4 px-2" style={{ color: t.textMuted }}>{vendor.category}</td>
                         <td className="py-4 px-2 font-mono text-xs">{vendor.gst}</td>
                         <td className="py-4 px-2" style={{ color: t.textMuted }}>{vendor.contact}</td>
-
                         <td className="py-4 px-2">
                           <span
                             className="rounded-full px-3 py-1 text-xs font-bold inline-block"
                             style={{
-                              background:
-                                vendor.status === "Active"
-                                  ? t.accentSubtle
-                                  : vendor.status === "Blocked"
-                                  ? (t.errorSubtle || "rgba(240, 96, 112, 0.15)")
-                                  : "rgba(245, 158, 11, 0.15)",
-                              color:
-                                vendor.status === "Active"
-                                  ? t.accent
-                                  : vendor.status === "Blocked"
-                                  ? (t.error || "#F06070")
-                                  : "#F59E0B",
+                              background: vendor.status === "Active" ? t.accentSubtle : vendor.status === "Blocked" ? "rgba(240, 96, 112, 0.15)" : "rgba(245, 158, 11, 0.15)",
+                              color: vendor.status === "Active" ? t.accent : vendor.status === "Blocked" ? "#F06070" : "#F59E0B",
                             }}
                           >
                             {vendor.status}
                           </span>
                         </td>
-
                         <td className="py-4 px-2">
                           <button
                             onClick={() => setSelectedVendor(vendor)}
                             className="rounded-xl px-4 py-2 text-sm font-medium transition hover:bg-opacity-80"
-                            style={{
-                              background: t.bgCard,
-                              border: `1px solid ${t.borderDefault}`,
-                              color: t.textPrimary,
-                              cursor: "pointer"
-                            }}
+                            style={{ background: t.bgCard, border: `1px solid ${t.borderDefault}`, color: t.textPrimary, cursor: "pointer" }}
                           >
                             View
                           </button>
@@ -300,227 +280,89 @@ export default function VendorPage() {
       {/* --- ADD VENDOR MODAL --- */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div 
-            className="w-full max-w-lg rounded-3xl border p-6 space-y-6 shadow-2xl animate-in fade-in zoom-in-95 duration-150"
-            style={{ background: t.bgSurface, borderColor: t.borderDefault }}
-          >
+          <div className="w-full max-w-lg rounded-3xl border p-6 space-y-6 shadow-2xl" style={{ background: t.bgSurface, borderColor: t.borderDefault }}>
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-black" style={{ color: t.textPrimary }}>Add New Vendor</h2>
-              <button 
-                onClick={() => setIsAddModalOpen(false)}
-                className="text-lg font-bold p-1 hover:opacity-70"
-                style={{ color: t.textMuted }}
-              >
-                ✕
-              </button>
+              <button onClick={() => setIsAddModalOpen(false)} className="text-lg font-bold p-1 hover:opacity-70" style={{ color: t.textMuted }}>✕</button>
             </div>
-
             <form onSubmit={handleAddVendor} className="space-y-4">
               <div className="flex flex-col gap-2">
                 <label className="text-xs font-bold uppercase tracking-wider" style={{ color: t.textLabel }}>Vendor Name</label>
-                <input 
-                  type="text" 
-                  required
-                  value={newVendor.name}
-                  onChange={(e) => setNewVendor({...newVendor, name: e.target.value})}
-                  placeholder="e.g. Acme Corp Industries"
-                  className="rounded-xl border p-3 text-sm bg-transparent outline-none focus:border-opacity-100"
-                  style={{ borderColor: t.borderSubtle, color: t.textPrimary }}
-                />
+                <input type="text" required value={newVendor.name} onChange={(e) => setNewVendor({ ...newVendor, name: e.target.value })} placeholder="e.g. Acme Corp Industries" className="rounded-xl border p-3 text-sm bg-transparent outline-none" style={{ borderColor: t.borderSubtle, color: t.textPrimary }} />
               </div>
-
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-2">
                   <label className="text-xs font-bold uppercase tracking-wider" style={{ color: t.textLabel }}>Category</label>
-                  <select
-                    value={newVendor.category}
-                    onChange={(e) => setNewVendor({...newVendor, category: e.target.value})}
-                    className="rounded-xl border p-3 text-sm bg-transparent outline-none appearance-none"
-                    style={{ borderColor: t.borderSubtle, color: t.textPrimary, background: t.bgSurface }}
-                  >
-                    <option value="Construction" style={{background: t.bgSurface}}>Construction</option>
-                    <option value="IT" style={{background: t.bgSurface}}>IT</option>
-                    <option value="Logistics" style={{background: t.bgSurface}}>Logistics</option>
-                    <option value="Manufacturing" style={{background: t.bgSurface}}>Manufacturing</option>
+                  <select value={newVendor.category} onChange={(e) => setNewVendor({ ...newVendor, category: e.target.value })} className="rounded-xl border p-3 text-sm bg-transparent outline-none" style={{ borderColor: t.borderSubtle, color: t.textPrimary, background: t.bgSurface }}>
+                    <option value="Construction">Construction</option>
+                    <option value="IT">IT</option>
+                    <option value="Logistics">Logistics</option>
                   </select>
                 </div>
-
                 <div className="flex flex-col gap-2">
-                  <label className="text-xs font-bold uppercase tracking-wider" style={{ color: t.textLabel }}>Status</label>
-                  <select
-                    value={newVendor.status}
-                    onChange={(e) => setNewVendor({...newVendor, status: e.target.value})}
-                    className="rounded-xl border p-3 text-sm bg-transparent outline-none appearance-none"
-                    style={{ borderColor: t.borderSubtle, color: t.textPrimary, background: t.bgSurface }}
-                  >
-                    <option value="Active" style={{background: t.bgSurface}}>Active</option>
-                    <option value="Pending" style={{background: t.bgSurface}}>Pending</option>
-                    <option value="Blocked" style={{background: t.bgSurface}}>Blocked</option>
-                  </select>
+                  <label className="text-xs font-bold uppercase tracking-wider" style={{ color: t.textLabel }}>GST Number</label>
+                  <input type="text" required value={newVendor.gst} onChange={(e) => setNewVendor({ ...newVendor, gst: e.target.value })} placeholder="e.g. 27AAICT1234A1Z5" className="rounded-xl border p-3 text-sm bg-transparent outline-none" style={{ borderColor: t.borderSubtle, color: t.textPrimary }} />
                 </div>
               </div>
-
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold uppercase tracking-wider" style={{ color: t.textLabel }}>GST Number</label>
-                <input 
-                  type="text" 
-                  required
-                  maxLength={15}
-                  value={newVendor.gst}
-                  onChange={(e) => setNewVendor({...newVendor, gst: e.target.value.toUpperCase()})}
-                  placeholder="e.g. 27AAICT1234A1Z5"
-                  className="rounded-xl border p-3 text-sm bg-transparent outline-none uppercase font-mono"
-                  style={{ borderColor: t.borderSubtle, color: t.textPrimary }}
-                />
+                <label className="text-xs font-bold uppercase tracking-wider" style={{ color: t.textLabel }}>Contact</label>
+                <input type="text" required value={newVendor.contact} onChange={(e) => setNewVendor({ ...newVendor, contact: e.target.value })} placeholder="e.g. +91 9876543210" className="rounded-xl border p-3 text-sm bg-transparent outline-none" style={{ borderColor: t.borderSubtle, color: t.textPrimary }} />
               </div>
-
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold uppercase tracking-wider" style={{ color: t.textLabel }}>Contact Details</label>
-                <input 
-                  type="tel" 
-                  required
-                  value={newVendor.contact}
-                  onChange={(e) => setNewVendor({...newVendor, contact: e.target.value})}
-                  placeholder="e.g. +91 9988776655"
-                  className="rounded-xl border p-3 text-sm bg-transparent outline-none"
-                  style={{ borderColor: t.borderSubtle, color: t.textPrimary }}
-                />
+                <label className="text-xs font-bold uppercase tracking-wider" style={{ color: t.textLabel }}>Address</label>
+                <textarea required rows={3} value={newVendor.address} onChange={(e) => setNewVendor({ ...newVendor, address: e.target.value })} placeholder="Complete street address..." className="rounded-xl border p-3 text-sm bg-transparent outline-none resize-none" style={{ borderColor: t.borderSubtle, color: t.textPrimary }} />
               </div>
-
-              {/* Added Address text-area field */}
-              <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold uppercase tracking-wider" style={{ color: t.textLabel }}>Office Address</label>
-                <textarea 
-                  required
-                  rows={3}
-                  value={newVendor.address}
-                  onChange={(e) => setNewVendor({...newVendor, address: e.target.value})}
-                  placeholder="Enter full physical registration or corporate headquarters address..."
-                  className="rounded-xl border p-3 text-sm bg-transparent outline-none resize-none"
-                  style={{ borderColor: t.borderSubtle, color: t.textPrimary }}
-                />
-              </div>
-
-              <div className="pt-4 flex gap-3 justify-end">
-                <button 
-                  type="button"
-                  onClick={() => setIsAddModalOpen(false)}
-                  className="rounded-xl px-5 py-3 text-sm font-semibold border"
-                  style={{ borderColor: t.borderDefault, color: t.textPrimary }}
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit"
-                  className="rounded-xl px-5 py-3 text-sm font-semibold transition hover:opacity-90"
-                  style={{ background: t.accent, color: t.textOnAccent || t.btnText }}
-                >
-                  Create Profile
-                </button>
+              <div className="flex gap-3 justify-end pt-4">
+                <button type="button" onClick={() => setIsAddModalOpen(false)} className="rounded-xl border px-5 py-3 text-sm font-semibold transition" style={{ borderColor: t.borderDefault, color: t.textPrimary }}>Cancel</button>
+                <button type="submit" className="rounded-xl px-5 py-3 text-sm font-semibold transition" style={{ background: t.accent, color: t.textOnAccent }}>Save Vendor</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* --- VENDOR DETAILS MODAL (VIEW ACTION) --- */}
+      {/* --- VENDOR DETAIL MODAL --- */}
       {selectedVendor && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div 
-            className="w-full max-w-xl rounded-3xl border p-6 space-y-6 shadow-2xl animate-in fade-in zoom-in-95 duration-150"
-            style={{ background: t.bgSurface, borderColor: t.borderDefault }}
-          >
-            <div className="flex justify-between items-start">
-              <div>
-                <span 
-                  className="rounded-full px-2.5 py-0.5 text-[10px] uppercase font-black tracking-wider"
-                  style={{ background: t.bgCard, color: t.textLabel }}
-                >
-                  {selectedVendor.category} Division
-                </span>
-                <h2 className="text-2xl font-black mt-2" style={{ color: t.textPrimary }}>
-                  {selectedVendor.name}
-                </h2>
-              </div>
-              <button 
-                onClick={() => setSelectedVendor(null)}
-                className="text-lg font-bold p-1 hover:opacity-70"
-                style={{ color: t.textMuted }}
-              >
-                ✕
-              </button>
+          <div className="w-full max-w-md rounded-3xl border p-6 space-y-6 shadow-2xl" style={{ background: t.bgSurface, borderColor: t.borderDefault }}>
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-black" style={{ color: t.textPrimary }}>Vendor Information</h2>
+              <button onClick={() => setSelectedVendor(null)} className="text-lg font-bold p-1 hover:opacity-70" style={{ color: t.textMuted }}>✕</button>
             </div>
-
-            <hr style={{ borderColor: t.borderSubtle }} />
-
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-1">
-                <div className="text-xs font-bold uppercase tracking-wider" style={{ color: t.textLabel }}>System ID</div>
-                <div className="text-sm font-mono" style={{ color: t.textPrimary }}>#{selectedVendor.id}</div>
+            <div className="space-y-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider" style={{ color: t.textLabel }}>Company Name</p>
+                <p className="text-base font-semibold mt-1" style={{ color: t.textPrimary }}>{selectedVendor.name}</p>
               </div>
-
-              <div className="space-y-1">
-                <div className="text-xs font-bold uppercase tracking-wider" style={{ color: t.textLabel }}>Operational Status</div>
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <span
-                    className="rounded-full px-3 py-1 text-xs font-bold inline-block"
-                    style={{
-                      background:
-                        selectedVendor.status === "Active"
-                          ? t.accentSubtle
-                          : selectedVendor.status === "Blocked"
-                          ? (t.errorSubtle || "rgba(240, 96, 112, 0.15)")
-                          : "rgba(245, 158, 11, 0.15)",
-                      color:
-                        selectedVendor.status === "Active"
-                          ? t.accent
-                          : selectedVendor.status === "Blocked"
-                          ? (t.error || "#F06070")
-                          : "#F59E0B",
-                    }}
-                  >
+                  <p className="text-xs font-bold uppercase tracking-wider" style={{ color: t.textLabel }}>Category</p>
+                  <p className="text-sm mt-1" style={{ color: t.textMuted }}>{selectedVendor.category}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider" style={{ color: t.textLabel }}>Status</p>
+                  <span className="rounded-full px-3 py-0.5 text-xs font-bold inline-block mt-1" style={{ background: selectedVendor.status === "Active" ? t.accentSubtle : "rgba(240, 96, 112, 0.15)", color: selectedVendor.status === "Active" ? t.accent : "#F06070" }}>
                     {selectedVendor.status}
                   </span>
                 </div>
               </div>
-
-              <div className="space-y-1">
-                <div className="text-xs font-bold uppercase tracking-wider" style={{ color: t.textLabel }}>GSTIN Reg / Tax Code</div>
-                <div className="text-sm font-mono tracking-wide" style={{ color: t.textPrimary }}>{selectedVendor.gst}</div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider" style={{ color: t.textLabel }}>GSTIN</p>
+                  <p className="text-sm font-mono mt-1" style={{ color: t.textPrimary }}>{selectedVendor.gst}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider" style={{ color: t.textLabel }}>Contact Phone</p>
+                  <p className="text-sm mt-1" style={{ color: t.textMuted }}>{selectedVendor.contact}</p>
+                </div>
               </div>
-
-              <div className="space-y-1">
-                <div className="text-xs font-bold uppercase tracking-wider" style={{ color: t.textLabel }}>Primary Contact</div>
-                <div className="text-sm" style={{ color: t.textPrimary }}>{selectedVendor.contact}</div>
-              </div>
-            </div>
-
-            {/* Address Field made cleanly visible only inside the explicit View Modal layout */}
-            <div className="space-y-2">
-              <div className="text-xs font-bold uppercase tracking-wider" style={{ color: t.textLabel }}>Registered Address</div>
-              <div 
-                className="p-4 rounded-2xl text-sm leading-relaxed border"
-                style={{ background: t.bgCard, borderColor: t.borderSubtle, color: t.textPrimary }}
-              >
-                {selectedVendor.address}
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider" style={{ color: t.textLabel }}>Registered Address</p>
+                <p className="text-sm leading-6 mt-1" style={{ color: t.textMuted }}>{selectedVendor.address}</p>
               </div>
             </div>
-
-            <div className="p-4 rounded-2xl text-xs space-y-1" style={{ background: t.bgPage, border: `1px solid ${t.borderSubtle}` }}>
-              <span className="font-bold" style={{ color: t.textPrimary }}>Compliance Audit Note:</span>
-              <p style={{ color: t.textMuted }}>
-                This profile is verified through internal supply chains. Ensure subsequent balance transactions map precisely to the designated GST reference configuration above.
-              </p>
-            </div>
-
             <div className="flex justify-end pt-2">
-              <button 
-                onClick={() => setSelectedVendor(null)}
-                className="rounded-xl px-6 py-2.5 text-sm font-semibold"
-                style={{ background: t.bgCard, border: `1px solid ${t.borderDefault}`, color: t.textPrimary }}
-              >
-                Close View
-              </button>
+              <button onClick={() => setSelectedVendor(null)} className="rounded-xl px-5 py-3 text-sm font-semibold transition" style={{ background: t.bgCard, border: `1px solid ${t.borderDefault}`, color: t.textPrimary }}>Close</button>
             </div>
           </div>
         </div>

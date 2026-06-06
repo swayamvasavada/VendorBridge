@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import SignUp from "./pages/SignUp";
 import ForgetPassword from "./pages/ForgotPassword";
 import VendorPage from "./pages/Vendors";
+import CreateRFQPage from "./pages/RFQ";
 
 function AppContent() {
   return (
@@ -60,7 +61,7 @@ function AppContent() {
         <Route path="/forgetpassword" element={<ForgetPassword />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/vendors" element={<VendorPage/>} />
-        <Route path="/rfqs" element={<Dashboard />} />
+        <Route path="/rfqs" element={<CreateRFQPage />} />
         <Route path="/quotations" element={<Dashboard />} />
         <Route path="/compare-quotations" element={<Dashboard />} />
         <Route path="/approvals" element={<Dashboard />} />
