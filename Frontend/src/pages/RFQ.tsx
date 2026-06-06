@@ -1,8 +1,11 @@
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { tokens, Theme } from "../colors/color";
 import Sidebar from "../components/Sidebar";
 import { dashboardConfigs, RoleKey } from "../config/dashboardConfig";
 import { useAuthStore } from "../store/authStore";
+import { RFQPayload, RFQStatus, useRFQStore } from "../store/rfqStore";
+import toast from "react-hot-toast";
+import { UserRecord, useUserStore } from "../store/userStore";
 
 interface LineItem {
   id: number;
@@ -17,6 +20,11 @@ export default function CreateRFQPage() {
 
   // Grab the same authenticated user context as the Dashboard / Vendor page
   const user = useAuthStore((state) => state.user);
+  const createRFQ = useRFQStore((state) => state.createRFQ);
+  const loadingStatus = useRFQStore((state) => state.loadingStatus);
+  const users = useUserStore((state) => state.users);
+  const fetchUsers = useUserStore((state) => state.fetchUsers);
+  const usersLoading = useUserStore((state) => state.fetchLoading);
 
   // Compute the dynamic configuration matching the sidebar navigation layout
   const role = useMemo<RoleKey>(() => {
@@ -40,7 +48,7 @@ export default function CreateRFQPage() {
   // Form State
   const [rfqTitle, setRfqTitle] = useState("Office Furniture procurement Q2");
   const [category, setCategory] = useState("Furniture");
-  const [deadline, setDeadline] = useState("2025-06-15");
+  const [deadline, setDeadline] = useState(new Date(Date.now()).toISOString().split("T")[0]);
   const [description, setDescription] = useState("Ergonomic chairs and standing desks for 3rd floor");
 
   // Line Items State
@@ -50,10 +58,28 @@ export default function CreateRFQPage() {
   ]);
 
   // Assigned Vendors State
-  const [assignedVendors, setAssignedVendors] = useState<string[]>([
-    "Infra Supplies Pvt Ltd",
-    "Tech Core LTD",
-  ]);
+  const [assignedVendors, setAssignedVendors] = useState<UserRecord[]>([]);
+  const [showVendorPicker, setShowVendorPicker] = useState(false);
+
+  useEffect(() => {
+    fetchUsers().catch((error: any) => {
+      toast.error(
+        error?.response?.data?.message || "Unable to load vendor users.",
+        { id: "rfq-vendors-error" },
+      );
+    });
+  }, [fetchUsers]);
+
+  const availableVendors = useMemo(
+    () =>
+      users.filter(
+        (candidate) =>
+          candidate.role?.toUpperCase() === "VENDOR" &&
+          candidate.id != null &&
+          !assignedVendors.some((vendor) => vendor.id === candidate.id),
+      ),
+    [assignedVendors, users],
+  );
 
   // Handle adding new line items
   const handleAddLineItem = () => {
@@ -81,14 +107,80 @@ export default function CreateRFQPage() {
     setLineItems(lineItems.filter((row) => row.id !== id));
   };
 
-  // Mock function to add a vendor partner
-  const handleAddVendor = () => {
-    const mockVendors = ["Apex Logistics", "Global Trading Corp", "Nexus Industries", "Vertex Solutions"];
-    const available = mockVendors.filter(v => !assignedVendors.includes(v));
-    if (available.length > 0) {
-      setAssignedVendors([...assignedVendors, available[0]]);
-    } else {
-      alert("All sample vendor partnerships have been added.");
+  const handleAddVendor = (vendor: UserRecord) => {
+    if (vendor.id == null) {
+      toast.error("Vendor ID is missing.");
+      return;
+    }
+
+    setAssignedVendors((current) => [...current, vendor]);
+    setShowVendorPicker(false);
+  };
+
+  const handleOpenVendorPicker = () => {
+    if (!usersLoading && availableVendors.length === 0) {
+      const hasVendorUsers = users.some(
+        (candidate) => candidate.role?.toUpperCase() === "VENDOR",
+      );
+      toast.error(
+        hasVendorUsers
+          ? "All available vendors are already assigned."
+          : "No vendor users are available.",
+      );
+      return;
+    }
+
+    setShowVendorPicker((current) => !current);
+  };
+
+  const handleSubmitRFQ = async (status: RFQStatus) => {
+    if (!rfqTitle.trim() || !deadline) {
+      toast.error("RFQ title and deadline are required.");
+      return;
+    }
+
+    if (
+      lineItems.some(
+        (item) => !item.item.trim() || !item.unit.trim() || item.qty <= 0,
+      )
+    ) {
+      toast.error("Complete every line item with a valid quantity.");
+      return;
+    }
+
+    if (assignedVendors.length === 0) {
+      toast.error("Assign at least one vendor.");
+      return;
+    }
+
+    const payload: RFQPayload = {
+      rfqID: 0,
+      title: rfqTitle.trim(),
+      description: description.trim(),
+      deadline: new Date(`${deadline}T23:59:59`).toISOString(),
+      status,
+      items: lineItems.map((item) => ({
+        rfqItemMappingID: 0,
+        itemName: item.item.trim(),
+        unit: item.unit.trim(),
+        quantity: item.qty,
+      })),
+      vendorIDs: assignedVendors.map((vendor) => vendor.id),
+    };
+
+    try {
+      await createRFQ(payload);
+      toast.success(
+        status === "DRAFT"
+          ? "RFQ draft saved successfully."
+          : "RFQ submitted for approval.",
+      );
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Unable to create RFQ.",
+      );
     }
   };
 
@@ -285,16 +377,22 @@ export default function CreateRFQPage() {
                   </div>
 
                   <div className="space-y-2">
-                    {assignedVendors.map((vendor, idx) => (
+                    {assignedVendors.map((vendor) => (
                       <div
-                        key={idx}
+                        key={vendor.id}
                         className="flex items-center justify-between p-3 rounded-xl border text-sm"
                         style={{ background: t.bgCard, borderColor: t.borderSubtle }}
                       >
-                        <span className="font-medium" style={{ color: t.textPrimary }}>{vendor}</span>
+                        <span className="font-medium" style={{ color: t.textPrimary }}>{vendor.name}</span>
                         <button
                           type="button"
-                          onClick={() => setAssignedVendors(assignedVendors.filter((v) => v !== vendor))}
+                          onClick={() =>
+                            setAssignedVendors(
+                              assignedVendors.filter(
+                                (item) => item.id !== vendor.id,
+                              ),
+                            )
+                          }
                           className="text-xs font-bold px-1 hover:opacity-70 transition-opacity"
                           style={{ color: t.textMuted }}
                         >
@@ -306,12 +404,56 @@ export default function CreateRFQPage() {
 
                   <button
                     type="button"
-                    onClick={handleAddVendor}
+                    onClick={handleOpenVendorPicker}
+                    disabled={usersLoading}
                     className="w-full rounded-xl py-3 text-xs font-semibold border border-dashed text-center transition hover:bg-opacity-10"
                     style={{ borderColor: t.borderDefault, color: t.textMuted, background: t.bgCard }}
                   >
-                    + Add Vendor Partnership
+                    {usersLoading
+                      ? "Loading vendors..."
+                      : "+ Add Vendor Partnership"}
                   </button>
+
+                  {showVendorPicker ? (
+                    <div
+                      className="max-h-56 space-y-2 overflow-y-auto rounded-xl border p-2"
+                      style={{
+                        background: t.bgCard,
+                        borderColor: t.borderDefault,
+                      }}
+                    >
+                      {availableVendors.map((vendor) => (
+                        <button
+                          key={vendor.id}
+                          type="button"
+                          onClick={() => handleAddVendor(vendor)}
+                          className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left transition hover:opacity-80"
+                          style={{ background: t.bgSurface }}
+                        >
+                          <span>
+                            <span
+                              className="block text-sm font-semibold"
+                              style={{ color: t.textPrimary }}
+                            >
+                              {vendor.name}
+                            </span>
+                            <span
+                              className="block text-xs"
+                              style={{ color: t.textMuted }}
+                            >
+                              {vendor.email}
+                            </span>
+                          </span>
+                          <span
+                            className="text-xs font-bold"
+                            style={{ color: t.accent }}
+                          >
+                            Add
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -322,17 +464,23 @@ export default function CreateRFQPage() {
               <div className="flex flex-col sm:flex-row lg:justify-end gap-3 sm:pt-24">
                 <button
                   type="button"
+                  onClick={() => handleSubmitRFQ("DRAFT")}
+                  disabled={loadingStatus !== null}
                   className="rounded-xl px-6 py-3.5 text-sm font-semibold border order-2 sm:order-1 transition hover:opacity-80"
                   style={{ borderColor: t.borderDefault, color: t.textPrimary, background: t.bgCard }}
                 >
-                  Save as Draft
+                  {loadingStatus === "DRAFT" ? "Saving..." : "Save as Draft"}
                 </button>
                 <button
                   type="button"
+                  onClick={() => handleSubmitRFQ("PENDING_APPROVAL")}
+                  disabled={loadingStatus !== null}
                   className="rounded-xl px-6 py-3.5 text-sm font-semibold order-1 sm:order-2 transition hover:opacity-90 shadow-lg"
                   style={{ background: t.accent, color: t.textOnAccent || t.btnText }}
                 >
-                  Save & Send to Vendors
+                  {loadingStatus === "PENDING_APPROVAL"
+                    ? "Sending..."
+                    : "Save & Send to Vendors"}
                 </button>
               </div>
             </div>

@@ -10,3 +10,7 @@ export const forgotPassword = `${baseURL}/api/auth/request-reset-password`;
 export const vendorRegistration = `${baseURL}/api/auth/vendor-registration`;
 export const verifyEmail = `${baseURL}/api/auth/verify`;
 export const venderordetails = `${baseURL}/api/rfq/fetchVendors`;
+export const rfq = `${baseURL}/api/rfq/addRFQ`;
+export const fetchRFQsForApproval = `${baseURL}/api/rfq/fetchRFQsForApproval`;
+export const updateRFQStatus = `${baseURL}/api/rfq/updateRFQStatus`;
+export const fetchVendorRFQs = `${baseURL}/api/rfq/fetchVendorRFQs`;

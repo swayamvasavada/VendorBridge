@@ -11,6 +11,7 @@ import CreateRFQPage from "./pages/RFQ";
 import UserManagement from "./pages/UserManagement";
 import VerifyEmail from "./pages/VerifyEmail";
 import Approvals from "./pages/Approvals";
+import VendorRFQs from "./pages/VendorRFQs";
 
 function AppContent() {
   return (
@@ -58,21 +59,18 @@ function AppContent() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/forgetpassword" element={<ForgetPassword />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/vendors" element={<VendorPage/>} />
-        <Route path="/rfqs" element={<CreateRFQPage />} />
         <Route path="/vendors" element={<VendorPage />} />
+        <Route path="/rfqs" element={<CreateRFQPage />} />
         <Route path="/user-management" element={<UserManagement />} />
-        <Route path="/rfqs" element={<Dashboard />} />
         <Route path="/quotations" element={<Dashboard />} />
         <Route path="/compare-quotations" element={<Dashboard />} />
         <Route path="/approvals" element={<Approvals />} />
         <Route path="/purchase-orders" element={<Dashboard />} />
         <Route path="/invoices" element={<Dashboard />} />
-        <Route path="/vendors" element={<Dashboard />} />
         <Route path="/reports" element={<Dashboard />} />
         <Route path="/activity-logs" element={<Dashboard />} />
-        <Route path="/settings" element={<Dashboard />} />
-        <Route path="/my-rfqs" element={<Dashboard />} />
+        <Route path="/signup?vendorOnly=false" element={<SignUp />} />
+        <Route path="/my-rfqs" element={<VendorRFQs />} />
         <Route path="/my-quotations" element={<Dashboard />} />
         <Route path="/payments" element={<Dashboard />} />
         <Route path="/notifications" element={<Dashboard />} />

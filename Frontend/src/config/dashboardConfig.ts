@@ -65,7 +65,7 @@ export const dashboardConfigs: Record<RoleKey, DashboardConfig> = {
       { label: "Invoices", path: "/invoices", icon: "M9 8h6M9 12h6M9 16h4M7 4h10l3 3v11a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z" },
       { label: "Reports & Analytics", path: "/reports", icon: "M6 18V6m6 12V10m6 8V13" },
       { label: "Activity Logs", path: "/activity-logs", icon: "M12 8v8m4-4H8" },
-      { label: "Settings", path: "/settings", icon: "M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" },
+      { label: "Add User", path: "/signup?vendorOnly=false", icon: "M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" },
     ],
     kpiCards: [
       { label: "Total Users", value: "1,240", hint: "Active accounts" },
@@ -144,6 +144,7 @@ export const dashboardConfigs: Record<RoleKey, DashboardConfig> = {
     sidebarItems: [
       { label: "Dashboard", path: "/dashboard", icon: "M3 12h18M3 6h18M3 18h18" },
       { label: "My RFQs", path: "/my-rfqs", icon: "M4 7h16M4 12h16M4 17h16" },
+      { label: "Approvals", path: "/approvals", icon: "M5 13l4 4L19 7" },
       { label: "My Quotations", path: "/my-quotations", icon: "M9 12h6M9 16h6M12 4v16" },
       { label: "Purchase Orders", path: "/purchase-orders", icon: "M5 3h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" },
       { label: "Payments", path: "/payments", icon: "M12 8v8m4-4H8" },
