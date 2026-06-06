@@ -4,6 +4,7 @@
 import { useState, ChangeEvent, CSSProperties, ReactNode } from "react";
 import { tokens, ColorTokens, Theme } from "../colors/color";
 import { Link } from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Fields {
@@ -152,6 +153,7 @@ function TextInput({
 export default function LoginPage() {
   const [theme, setTheme] = useState<Theme>("dark");
   const t = tokens(theme);
+  const { login, loading } = useAuthStore();
 
   const [fields, setFields] = useState<Fields>(EMPTY_FIELDS);
   const [errors, setErrors] = useState<Errors>({});
@@ -163,13 +165,27 @@ export default function LoginPage() {
     setErrors(err => ({ ...err, [key]: undefined }));
   };
 
-  const handleLogin = () => {
-    const errs = validate(fields);
-    setErrors(errs);
-    if (Object.keys(errs).length === 0) {
-      console.log("Logging in with standard credentials...", fields);
-    }
-  };
+  const handleLogin = async () => {
+  const errs = validate(fields);
+  setErrors(errs);
+
+  if (Object.keys(errs).length > 0) return;
+
+  try {
+    console.log("Login Button Clicked");
+    console.log("Email:", fields.email);
+    console.log("Password:", fields.password);
+
+    const response = await login({
+      email: fields.email,
+      password: fields.password,
+    });
+
+    console.log("Final Response:", response);
+  } catch (error) {
+    console.log("Login Failed:", error);
+  }
+};
 
   // ── Google font injection ──
   if (typeof document !== "undefined") {
