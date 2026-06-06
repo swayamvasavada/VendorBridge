@@ -102,7 +102,7 @@ export default function CreateRFQPage() {
       }}
     >
       <div className="max-w-[1600px] mx-auto px-4 py-5 md:px-6 md:py-6">
-        <div className="grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)]">
+        <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
           
           {/* Synchronized Sidebar feeding data dynamically based on active user context */}
           <Sidebar t={t} navItems={dashboard.sidebarItems} />
@@ -126,33 +126,6 @@ export default function CreateRFQPage() {
                 <h1 className="mt-3 text-3xl font-black" style={{ color: t.textPrimary }}>
                   Create RFQ's
                 </h1>
-                <p className="mt-1 text-sm font-medium" style={{ color: t.textMuted }}>
-                  new request for quotation
-                </p>
-              </div>
-
-              {/* Step Flow Indicators */}
-              <div className="mt-8 flex items-center w-full max-w-md">
-                <div
-                  className="flex items-center justify-center w-8 h-8 rounded-full border text-xs font-bold"
-                  style={{ background: t.accent, borderColor: t.accent, color: t.textOnAccent || t.btnText }}
-                >
-                  1
-                </div>
-                <div className="flex-1 h-[2px]" style={{ background: t.borderDefault }} />
-                <div
-                  className="flex items-center justify-center w-8 h-8 rounded-full border text-xs font-bold"
-                  style={{ background: "transparent", borderColor: t.borderDefault, color: t.textMuted }}
-                >
-                  2
-                </div>
-                <div className="flex-1 h-[2px]" style={{ background: t.borderDefault }} />
-                <div
-                  className="flex items-center justify-center w-8 h-8 rounded-full border text-xs font-bold"
-                  style={{ background: "transparent", borderColor: t.borderDefault, color: t.textMuted }}
-                >
-                  3
-                </div>
               </div>
             </section>
 
@@ -344,27 +317,7 @@ export default function CreateRFQPage() {
             </div>
 
             {/* Bottom Section: Upload Block & Actions */}
-            <div className="grid gap-6 lg:grid-cols-2 items-start">
-              
-              {/* Document Dropper Area */}
-              <div
-                className="rounded-3xl border p-6 flex flex-col justify-center items-center h-44 space-y-2 group cursor-pointer border-dashed"
-                style={{ background: t.bgSurface, borderColor: t.borderDefault }}
-              >
-                <div className="text-xs font-bold uppercase tracking-wider self-start w-full mb-2" style={{ color: t.textLabel }}>
-                  Attachments
-                </div>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={t.textMuted} strokeWidth="2" className="group-hover:-translate-y-[2px] transition-transform">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
-                </svg>
-                <span className="text-sm font-medium" style={{ color: t.textPrimary }}>
-                  Drag & drop files or click to upload
-                </span>
-                <span className="text-xs" style={{ color: t.textMuted }}>
-                  PDF, DOCX, XLSX up to 10MB
-                </span>
-              </div>
-
+            <div className="grid gap-6 lg:grid-cols-2 flex items-center justify-center">
               {/* Complete Submission System Buttons */}
               <div className="flex flex-col sm:flex-row lg:justify-end gap-3 sm:pt-24">
                 <button

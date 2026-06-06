@@ -131,7 +131,7 @@ export default function Dashboard() {
       }}
     >
       <div className="max-w-[1600px] mx-auto px-4 py-5 md:px-6 md:py-6">
-        <div className="grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)]">
+        <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
           <Sidebar t={t} navItems={dashboard.sidebarItems} />
 
           <main className="space-y-6 min-w-0 w-full">

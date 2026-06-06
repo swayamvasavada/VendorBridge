@@ -37,33 +37,48 @@ export default function Sidebar({
   const location = useLocation();
   const activePath = location.pathname;
   const items = navItems ?? [];
-  useEffect(() => {
-  setMobileOpen(false);
-}, [location.pathname]);
-
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
 
   return (
     <>
-      {/* ================= Desktop Sidebar ================= */}
-      <nav className="hidden md:block md:sticky md:top-6 md:self-start">
+      <nav
+        className="hidden lg:block lg:sticky lg:top-6 lg:self-start"
+        aria-label="Primary navigation"
+      >
         <div
-          className="rounded-3xl border p-4"
+          className="flex max-h-[calc(100vh-3rem)] flex-col overflow-hidden rounded-[28px] border p-3"
           style={{
-            background: t.bgCard,
+            background: t.bgSurface,
             borderColor: t.borderDefault,
+            boxShadow: t.shadow,
           }}
         >
-          <div className="mb-6">
+          <div
+            className="mb-3 rounded-2xl border px-4 py-4"
+            style={{
+              background: t.bgCard,
+              borderColor: t.borderSubtle,
+            }}
+          >
             <div
-              className="text-xs uppercase tracking-[0.2em] font-semibold"
-              style={{ color: t.textLabel }}
+              className="text-[0.65rem] font-bold uppercase tracking-[0.24em]"
+              style={{ color: t.logoText }}
             >
               VendorBridge
             </div>
+            <p
+              className="mt-1.5 text-xs"
+              style={{ color: t.textMuted }}
+            >
+              Procurement workspace
+            </p>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1 overflow-y-auto pr-1">
             {items.map((item) => {
               const isActive = item.path === activePath;
 
@@ -71,36 +86,29 @@ export default function Sidebar({
                 <Link
                   key={item.path}
                   to={item.path}
-                  className="group flex items-center gap-3 rounded-2xl px-4 py-3 transition-all duration-200"
+                  aria-current={isActive ? "page" : undefined}
+                  className="group flex min-h-11 items-center gap-3 rounded-xl border px-3 py-2.5 transition-all duration-200"
                   style={{
-                    background: isActive
-                      ? t.accentSubtle
-                      : t.bgCard,
-                    color: isActive
-                      ? t.accent
-                      : t.textMuted,
-                    border: `1px solid ${
-                      isActive
-                        ? t.accent
-                        : "transparent"
-                    }`,
+                    background: isActive ? t.accentSubtle : "transparent",
+                    borderColor: isActive ? t.accent : "transparent",
                   }}
                 >
-                  <Icon
-                    d={item.icon}
-                    color={
-                      isActive
-                        ? t.accent
-                        : t.textMuted
-                    }
-                  />
+                  <span
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+                    style={{
+                      background: isActive ? t.accent : t.bgCard,
+                    }}
+                  >
+                    <Icon
+                      d={item.icon}
+                      color={isActive ? t.textOnAccent : t.textMuted}
+                    />
+                  </span>
 
                   <span
-                    className="text-sm font-medium"
+                    className="min-w-0 truncate text-sm font-medium"
                     style={{
-                      color: isActive
-                        ? t.textPrimary
-                        : t.textMuted,
+                      color: isActive ? t.textPrimary : t.textMuted,
                     }}
                   >
                     {item.label}
@@ -112,9 +120,8 @@ export default function Sidebar({
         </div>
       </nav>
 
-      {/* ================= Mobile Top Bar ================= */}
       <div
-        className="md:hidden sticky top-0 z-40 border-b backdrop-blur-xl"
+        className="sticky top-0 z-40 lg:hidden rounded-2xl border backdrop-blur-xl"
         style={{
           background: `${t.bgCard}ee`,
           borderColor: t.borderDefault,
@@ -147,19 +154,17 @@ export default function Sidebar({
         </div>
       </div>
 
-      {/* ================= Overlay ================= */}
       <div
         onClick={() => setMobileOpen(false)}
-        className={`md:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-all duration-300 ${
+        className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-all duration-300 lg:hidden ${
           mobileOpen
             ? "opacity-100 visible"
             : "opacity-0 invisible"
         }`}
       />
 
-      {/* ================= Mobile Drawer ================= */}
       <div
-        className={`md:hidden fixed top-0 left-0 h-screen w-[280px] z-50 transform transition-transform duration-300 ease-out ${
+        className={`fixed top-0 left-0 z-50 h-screen w-[280px] transform transition-transform duration-300 ease-out lg:hidden ${
           mobileOpen
             ? "translate-x-0"
             : "-translate-x-full"

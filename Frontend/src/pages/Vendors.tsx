@@ -128,7 +128,7 @@ export default function VendorPage() {
     >
       <div className="max-w-[1600px] mx-auto px-4 py-5 md:px-6 md:py-6">
         {/* Layout Grid wrapping sidebar and contents cleanly */}
-        <div className="grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)]">
+        <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
           
           {/* Synchronized Sidebar component feeding data dynamically */}
           <Sidebar t={t} navItems={dashboard.sidebarItems} />

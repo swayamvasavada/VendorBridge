@@ -16,7 +16,9 @@ export interface UserRecord {
 
 type UserApiRecord = Omit<UserRecord, "id" | "enabled"> & {
   id?: number;
+  userID?: number;
   userId?: number;
+  UserID?: number;
   UserId?: number;
   enabled?: boolean;
   isEnabled?: boolean;
@@ -87,7 +89,12 @@ export const useUserStore = create<UserState>((set) => ({
         const normalizedUsers: UserRecord[] = users.map(
           (user: UserApiRecord) => ({
             ...user,
-            id: user.userId ?? user.UserId ?? user.id,
+            id:
+              user.userID ??
+              user.userId ??
+              user.UserID ??
+              user.UserId ??
+              user.id,
             enabled: user.isEnabled ?? user.enabled ?? false,
           }),
         );

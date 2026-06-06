@@ -10,6 +10,7 @@ import VendorPage from "./pages/Vendors";
 import CreateRFQPage from "./pages/RFQ";
 import UserManagement from "./pages/UserManagement";
 import VerifyEmail from "./pages/VerifyEmail";
+import Approvals from "./pages/Approvals";
 
 function AppContent() {
   return (
@@ -64,7 +65,7 @@ function AppContent() {
         <Route path="/rfqs" element={<Dashboard />} />
         <Route path="/quotations" element={<Dashboard />} />
         <Route path="/compare-quotations" element={<Dashboard />} />
-        <Route path="/approvals" element={<Dashboard />} />
+        <Route path="/approvals" element={<Approvals />} />
         <Route path="/purchase-orders" element={<Dashboard />} />
         <Route path="/invoices" element={<Dashboard />} />
         <Route path="/vendors" element={<Dashboard />} />

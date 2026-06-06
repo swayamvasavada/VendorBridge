@@ -192,7 +192,7 @@ export default function UserManagement() {
       }}
     >
       <div className="max-w-[1600px] mx-auto px-4 py-5 md:px-6 md:py-6">
-        <div className="grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)]">
+        <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
           <Sidebar t={t} navItems={dashboard.sidebarItems} />
 
           <main className="space-y-6 min-w-0 w-full">
@@ -459,9 +459,15 @@ export default function UserManagement() {
                                     />
                                   </span>
                                   {toggleLoading[user.id] ? (
-                                    <span className="ml-3 text-xs">
-                                      Saving...
-                                    </span>
+                                    <span
+                                      className="ml-3 h-4 w-4 animate-spin rounded-full border-2"
+                                      style={{
+                                        borderColor: t.borderDefault,
+                                        borderTopColor: t.accent,
+                                      }}
+                                      role="status"
+                                      aria-label="Updating user status"
+                                    />
                                   ) : null}
                                 </button>
                                 <button
@@ -591,12 +597,19 @@ export default function UserManagement() {
                                 />
                               </span>
                               <span className="ml-3 text-xs uppercase tracking-[0.22em]">
-                                {toggleLoading[user.id]
-                                  ? "Saving..."
-                                  : user.enabled
-                                    ? "Enabled"
-                                    : "Disabled"}
+                                {user.enabled ? "Enabled" : "Disabled"}
                               </span>
+                              {toggleLoading[user.id] ? (
+                                <span
+                                  className="ml-3 h-4 w-4 animate-spin rounded-full border-2"
+                                  style={{
+                                    borderColor: t.borderDefault,
+                                    borderTopColor: t.accent,
+                                  }}
+                                  role="status"
+                                  aria-label="Updating user status"
+                                />
+                              ) : null}
                             </button>
                             <button
                               onClick={() => setSelectedDeleteUser(user)}
