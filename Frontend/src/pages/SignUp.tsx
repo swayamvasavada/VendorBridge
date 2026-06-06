@@ -1,7 +1,7 @@
 // SignUpPage.tsx — ProcureOS Registration Screen 2
 // Uses color tokens from colors.ts. All styles are inline via the `t` token object.
 
-import { useState, useRef, ChangeEvent, CSSProperties, ReactNode } from "react";
+import { useState, ChangeEvent, ReactNode } from "react";
 import { tokens, ColorTokens, Theme } from "../colors/color";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -31,8 +31,7 @@ interface Errors {
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const ROLES    = ["Admin","Procurement Officer","Vendor Manager","Finance Officer","Auditor","Viewer"];
-const COUNTRIES = ["India","United States","United Kingdom","Germany","UAE","Singapore","Australia","Canada","France","Japan"];
+const ROLES    = ["Admin","Procurement Officer","Vendor","Manager"];
 
 const EMPTY_FIELDS: Fields = {
   firstName:"", lastName:"", email:"", phone:"", role:"", country:"",
@@ -68,7 +67,7 @@ function pwdStrength(p: string): { score: number; color: string; label: string }
 
 // ─── Shared icon helpers ──────────────────────────────────────────────────────
 const UserIcon = ({ color }: { color: string }) => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
   </svg>
 );
@@ -125,47 +124,6 @@ const GoogleIcon = () => (
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-// Stepper
-function Stepper({ step, t }: { step: number; t: ColorTokens }) {
-  const steps = ["Account", "Profile", "Verify"];
-  return (
-    <div style={{ display:"flex", alignItems:"center", marginBottom:28 }}>
-      {steps.map((label, i) => {
-        const idx   = i + 1;
-        const done  = step > idx;
-        const active = step === idx;
-        return (
-          <div key={label} style={{ display:"flex", alignItems:"center", flex: i < steps.length - 1 ? 1 : "none" }}>
-            <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:5 }}>
-              <div style={{
-                width:32, height:32, borderRadius:"50%",
-                background: done || active ? t.accent : t.bgCard,
-                border: `1.5px solid ${done || active ? t.accent : t.borderStrong}`,
-                display:"flex", alignItems:"center", justifyContent:"center",
-                transition:"all 0.3s",
-                color: done || active ? t.btnText : t.textMuted,
-                fontSize:12, fontWeight:700,
-              }}>
-                {done ? <CheckIcon color={t.btnText} size={12}/> : idx}
-              </div>
-              <span style={{ fontSize:11, fontWeight:600, color: active ? t.accent : t.textMuted, whiteSpace:"nowrap" }}>
-                {label}
-              </span>
-            </div>
-            {i < steps.length - 1 && (
-              <div style={{
-                flex:1, height:1.5,
-                background: done ? t.accent : t.borderStrong,
-                margin:"0 6px", marginBottom:18, transition:"background 0.3s",
-              }}/>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 // Field wrapper
 function Field({
   label, error, children, t,
@@ -173,13 +131,16 @@ function Field({
   label: string; error?: string; children: ReactNode; t: ColorTokens;
 }) {
   return (
-    <div style={{ display:"flex", flexDirection:"column", gap:5 }}>
-      <label style={{ fontSize:11.5, fontWeight:600, color: error ? t.error : t.textLabel, letterSpacing:"0.06em", textTransform:"uppercase" as const, fontFamily:"inherit" }}>
+    <div className="flex flex-col gap-1">
+      <label
+        className="text-xs font-semibold uppercase tracking-widest"
+        style={{ color: error ? t.error : t.textLabel }}
+      >
         {label}
       </label>
       {children}
       {error && (
-        <span style={{ fontSize:11.5, color:t.error, display:"flex", alignItems:"center", gap:4 }}>
+        <span className="text-xs flex items-center gap-1" style={{ color: t.error }}>
           ⚠ {error}
         </span>
       )}
@@ -203,9 +164,9 @@ function TextInput({
   const boxShadow   = focused ? `0 0 0 3px ${t.accentGlow}` : "none";
 
   return (
-    <div style={{ position:"relative" }}>
+    <div className="relative">
       {icon && (
-        <div style={{ position:"absolute", left:13, top:"50%", transform:"translateY(-50%)", pointerEvents:"none", display:"flex" }}>
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none flex">
           {icon}
         </div>
       )}
@@ -218,22 +179,19 @@ function TextInput({
         onBlur={() => setFocused(false)}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
+        className="w-full px-3.5 py-3 rounded-xl text-sm font-medium outline-none transition-all"
         style={{
-          width:"100%", boxSizing:"border-box",
-          padding: `13px ${rightEl ? "40px" : "14px"} 13px ${icon ? "38px" : "14px"}`,
+          paddingLeft: icon ? "38px" : "14px",
+          paddingRight: rightEl ? "40px" : "14px",
           background: bg,
-          border: `1.5px solid ${borderColor}`,
-          borderRadius:10,
+          borderWidth: "1.5px",
+          borderColor: borderColor,
           color: t.textPrimary,
-          fontSize:14,
-          fontFamily:"'DM Sans', sans-serif",
-          outline:"none",
-          transition:"all 0.2s",
           boxShadow,
         }}
       />
       {rightEl && (
-        <div style={{ position:"absolute", right:12, top:"50%", transform:"translateY(-50%)", display:"flex" }}>
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex">
           {rightEl}
         </div>
       )}
@@ -263,21 +221,17 @@ function SelectInput({
       onBlur={() => setFocused(false)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      className="w-full px-3 py-3 rounded-xl text-sm font-medium outline-none transition-all cursor-pointer appearance-none"
       style={{
-        width:"100%", padding:"13px 36px 13px 14px", boxSizing:"border-box" as const,
+        paddingRight: "36px",
         background: bg,
-        border: `1.5px solid ${borderColor}`,
-        borderRadius:10,
+        borderWidth: "1.5px",
+        borderColor: borderColor,
         color: value ? t.textPrimary : t.textMuted,
-        fontSize:14, fontFamily:"'DM Sans', sans-serif",
-        outline:"none", cursor:"pointer",
-        transition:"all 0.2s",
         boxShadow,
-        appearance:"none" as const,
-        WebkitAppearance:"none" as const,
-        backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237A8BAA' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`,
-        backgroundRepeat:"no-repeat" as const,
-        backgroundPosition:"right 13px center",
+        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237A8BAA' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`,
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "right 13px center",
       }}
     >
       <option value="" disabled>{placeholder}</option>
@@ -291,68 +245,45 @@ function StrengthBar({ password, t }: { password: string; t: ColorTokens }) {
   const { score, color, label } = pwdStrength(password);
   if (!password) return null;
   return (
-    <div style={{ marginTop:5 }}>
-      <div style={{ display:"flex", gap:4, marginBottom:3 }}>
+    <div className="mt-1">
+      <div className="flex gap-1 mb-0.5">
         {[1,2,3,4].map(i => (
-          <div key={i} style={{ flex:1, height:3, borderRadius:2, background: i <= score ? color : t.borderStrong, transition:"background 0.3s" }}/>
+          <div key={i} className="flex-1 h-0.5 rounded transition-colors" style={{ background: i <= score ? color : t.borderStrong }}/>
         ))}
       </div>
-      {label && <span style={{ fontSize:11, color, fontWeight:600 }}>{label}</span>}
+      {label && <span className="text-xs font-semibold" style={{ color }}>{label}</span>}
     </div>
   );
 }
 
-// Photo uploader
-function PhotoUpload({ t }: { t: ColorTokens }) {
-  const [preview, setPreview] = useState<string | null>(null);
-  const [hovered, setHovered] = useState(false);
-  const ref = useRef<HTMLInputElement>(null);
-
-  const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => setPreview(ev.target?.result as string);
-    reader.readAsDataURL(file);
-  };
+// Avatar display with initials
+function AvatarDisplay({ firstName, lastName, t }: { firstName: string; lastName: string; t: ColorTokens }) {
+  const hasName = firstName.trim() && lastName.trim();
+  const initials = hasName ? `${firstName.trim()[0]}${lastName.trim()[0]}`.toUpperCase() : "";
 
   return (
-    <div style={{ display:"flex", justifyContent:"center", marginBottom:24 }}>
-      <div style={{ position:"relative", cursor:"pointer" }} onClick={() => ref.current?.click()}>
-        <div
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-          style={{
-            width:96, height:96, borderRadius:"50%",
-            border: `2px dashed ${hovered ? t.accent : t.borderStrong}`,
-            background: hovered ? t.accentSubtle : t.bgCard,
-            display:"flex", flexDirection:"column",
-            alignItems:"center", justifyContent:"center", gap:5,
-            overflow:"hidden", transition:"all 0.25s",
-          }}
-        >
-          {preview ? (
-            <img src={preview} alt="profile" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
-          ) : (
-            <>
-              <UserIcon color={hovered ? t.accent : t.textMuted}/>
-              <span style={{ fontSize:12, color: hovered ? t.accent : t.textMuted, fontWeight:500 }}>Photo</span>
-            </>
-          )}
-        </div>
-        {/* + badge */}
-        <div style={{
-          position:"absolute", bottom:2, right:2,
-          width:22, height:22, borderRadius:"50%",
-          background: t.accent,
-          border: `2px solid ${t.bgSurface}`,
-          display:"flex", alignItems:"center", justifyContent:"center",
-        }}>
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={t.btnText} strokeWidth="3" strokeLinecap="round">
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-        </div>
-        <input ref={ref} type="file" accept="image/*" style={{ display:"none" }} onChange={handleFile}/>
+    <div className="flex justify-center mb-6">
+      <div
+        className="w-24 h-24 rounded-full border-2 flex items-center justify-center overflow-hidden transition-all"
+        style={{
+          borderColor: t.borderStrong,
+          background: hasName ? t.accentSubtle : t.bgCard,
+          borderStyle: hasName ? "solid" : "dashed",
+        }}
+      >
+        {hasName ? (
+          <span
+            className="text-2xl font-bold"
+            style={{
+              color: t.accent,
+              fontFamily: "'Sora', sans-serif",
+            }}
+          >
+            {initials}
+          </span>
+        ) : (
+          <UserIcon color={t.textMuted}/>
+        )}
       </div>
     </div>
   );
@@ -361,29 +292,30 @@ function PhotoUpload({ t }: { t: ColorTokens }) {
 // Success screen
 function SuccessScreen({ t, onBack }: { t: ColorTokens; onBack: () => void }) {
   return (
-    <div style={{ textAlign:"center", padding:"60px 20px" }}>
-      <div style={{
-        width:72, height:72, borderRadius:"50%",
-        background: t.accentSubtle, border: `1.5px solid ${t.accent}`,
-        display:"flex", alignItems:"center", justifyContent:"center",
-        margin:"0 auto 20px",
-      }}>
+    <div className="text-center py-16 px-5">
+      <div
+        className="w-18 h-18 rounded-full flex items-center justify-center mx-auto mb-5 border-1.5"
+        style={{
+          background: t.accentSubtle,
+          borderColor: t.accent,
+        }}
+      >
         <CheckIcon color={t.accent} size={30}/>
       </div>
-      <h2 style={{ color:t.textPrimary, fontSize:22, fontWeight:800, fontFamily:"'Sora', sans-serif", marginBottom:8 }}>
+      <h2 className="text-2xl font-black mb-2" style={{ color: t.textPrimary, fontFamily: "'Sora', sans-serif" }}>
         Registration Submitted!
       </h2>
-      <p style={{ color:t.textMuted, fontSize:14, lineHeight:1.7, marginBottom:28 }}>
+      <p className="text-sm leading-relaxed mb-7" style={{ color: t.textMuted }}>
         Your account request is pending approval.<br/>
         Check your email for a confirmation link.
       </p>
       <button
         onClick={onBack}
+        className="px-8 py-3 rounded-xl text-sm font-bold transition-all"
         style={{
-          background: t.btnBg, color: t.btnText,
-          border:"none", borderRadius:10, padding:"13px 32px",
-          fontSize:15, fontWeight:700, fontFamily:"'Sora', sans-serif",
-          cursor:"pointer",
+          background: t.btnBg,
+          color: t.btnText,
+          fontFamily: "'Sora', sans-serif",
         }}
       >
         Back to Sign Up
@@ -422,7 +354,7 @@ export default function SignUpPage() {
   };
 
   // ── Shared input style helpers ──
-  const row2: CSSProperties = { display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 };
+  const row2 = "grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-3.5";
 
   // ── Google font injection ──
   if (typeof document !== "undefined") {
@@ -436,102 +368,73 @@ export default function SignUpPage() {
   }
 
   return (
-    <div style={{
-      minHeight:"100vh",
-      background: t.bgPage,
-      display:"flex", alignItems:"flex-start", justifyContent:"center",
-      padding:"40px 20px",
-      fontFamily:"'DM Sans', sans-serif",
-    }}>
+    <div
+      className="min-h-screen flex items-start justify-center p-5 md:p-10"
+      style={{
+        background: t.bgPage,
+        fontFamily: "'DM Sans', sans-serif",
+      }}
+    >
       {/* Card */}
-      <div style={{
-        width:"100%", maxWidth:640,
-        background: t.bgSurface,
-        border: `1px solid ${t.borderDefault}`,
-        borderRadius:20,
-        padding:"40px 44px 36px",
-        boxShadow: t.shadow,
-        position:"relative",
-        overflow:"hidden",
-      }}>
+      <div
+        className="w-full max-w-2xl rounded-3xl p-6 md:p-11 relative overflow-hidden"
+        style={{
+          background: t.bgSurface,
+          border: `1px solid ${t.borderDefault}`,
+          boxShadow: t.shadow,
+        }}
+      >
         {/* Ambient glow top-right */}
-        <div style={{
-          position:"absolute", top:-100, right:-100,
-          width:280, height:280,
-          background: t.accentSubtle,
-          borderRadius:"50%", filter:"blur(60px)",
-          pointerEvents:"none",
-        }}/>
+        <div
+          className="absolute -top-28 -right-28 w-72 h-72 rounded-full blur-3xl pointer-events-none"
+          style={{
+            background: t.accentSubtle,
+          }}
+        />
 
         {/* ── Brand row ── */}
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:24, position:"relative" }}>
+        <div className="flex items-center justify-between mb-10 relative">
           {/* Logo */}
-          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-            <div style={{ width:36, height:36, borderRadius:9, background:t.accent, display:"flex", alignItems:"center", justifyContent:"center" }}>
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: t.accent }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={t.btnText} strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
               </svg>
             </div>
             <div>
-              <div style={{ fontFamily:"'Sora', sans-serif", fontSize:15, fontWeight:700, color:t.textPrimary }}>ProcureOS</div>
-              <div style={{ fontSize:10.5, color:t.textMuted, letterSpacing:"0.07em", textTransform:"uppercase" as const }}>Vendor ERP</div>
+              <div className="text-sm md:text-base font-bold" style={{ color: t.textPrimary, fontFamily: "'Sora', sans-serif" }}>VendorBridge</div>
             </div>
           </div>
 
           {/* Theme toggle */}
           <button
             onClick={() => setTheme(th => th === "dark" ? "light" : "dark")}
+            className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5"
             style={{
-              background: t.bgCard, border:`1.5px solid ${t.borderStrong}`,
-              borderRadius:8, padding:"7px 13px", cursor:"pointer",
-              display:"flex", alignItems:"center", gap:6,
-              color: t.textMuted, fontSize:12, fontWeight:600,
-              fontFamily:"'DM Sans', sans-serif",
-              transition:"all 0.2s",
+              background: t.bgCard,
+              borderWidth: "1.5px",
+              borderColor: t.borderStrong,
+              color: t.textMuted,
+              fontFamily: "'DM Sans', sans-serif",
             }}
           >
             {theme === "dark" ? <SunIcon color={t.textMuted}/> : <MoonIcon color={t.textMuted}/>}
-            {theme === "dark" ? "Light" : "Dark"}
+            <span className="hidden xs:inline">{theme === "dark" ? "Light" : "Dark"}</span>
           </button>
         </div>
-
-        {/* ── Stepper ── */}
-        <Stepper step={2} t={t}/>
 
         {submitted ? (
           <SuccessScreen t={t} onBack={resetForm}/>
         ) : (
           <>
-            <h1 style={{ fontFamily:"'Sora', sans-serif", fontSize:22, fontWeight:800, color:t.textPrimary, marginBottom:3 }}>Registration</h1>
-            <p style={{ fontSize:14, color:t.textMuted, marginBottom:24 }}>Complete your profile — Screen 2</p>
+            <h1 className="text-xl md:text-2xl font-black mb-8 flex flex-col items-center justify-center" style={{ color: t.textPrimary, fontFamily: "'Sora', sans-serif" }}>Registration</h1>
 
-            {/* Photo upload */}
-            <PhotoUpload t={t}/>
+            {/* Avatar display */}
+            <AvatarDisplay firstName={fields.firstName} lastName={fields.lastName} t={t}/>
 
-            {/* Google OAuth */}
-            <button
-              style={{
-                width:"100%", padding:"11px 14px",
-                background: t.bgCard, border:`1.5px solid ${t.borderStrong}`,
-                borderRadius:10, cursor:"pointer",
-                display:"flex", alignItems:"center", justifyContent:"center", gap:10,
-                color: t.textLabel, fontSize:14, fontWeight:600,
-                fontFamily:"'DM Sans', sans-serif",
-                marginBottom:18, transition:"all 0.2s",
-              }}
-            >
-              <GoogleIcon/> Continue with Google
-            </button>
-
-            {/* Divider */}
-            <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:20 }}>
-              <div style={{ flex:1, height:1, background:t.borderStrong }}/>
-              <span style={{ fontSize:11, color:t.textMuted, fontWeight:600, letterSpacing:"0.06em" }}>OR FILL IN DETAILS</span>
-              <div style={{ flex:1, height:1, background:t.borderStrong }}/>
-            </div>
 
             {/* Row 1: First + Last Name */}
-            <div style={{ ...row2, marginBottom:14 }}>
+            <div className={row2}>
               <Field label="First Name" error={errors.firstName} t={t}>
                 <TextInput value={fields.firstName} onChange={set("firstName")} placeholder="e.g. Pushkar" t={t}
                   icon={<UserIcon color={t.textMuted}/>} hasError={!!errors.firstName}/>
@@ -542,7 +445,7 @@ export default function SignUpPage() {
             </div>
 
             {/* Row 2: Email + Phone */}
-            <div style={{ ...row2, marginBottom:14 }}>
+            <div className={row2}>
               <Field label="Email Address" error={errors.email} t={t}>
                 <TextInput type="email" value={fields.email} onChange={set("email")} placeholder="you@company.com" t={t}
                   icon={<MailIcon color={t.textMuted}/>} hasError={!!errors.email}/>
@@ -554,47 +457,44 @@ export default function SignUpPage() {
             </div>
 
             {/* Row 3: Role + Country */}
-            <div style={{ ...row2, marginBottom:14 }}>
+            <div className={row2}>
               <Field label="Role (Admin, Officer)" error={errors.role} t={t}>
                 <SelectInput value={fields.role} onChange={set("role")} options={ROLES} placeholder="Select role…" t={t} hasError={!!errors.role}/>
               </Field>
               <Field label="Country" error={errors.country} t={t}>
-                <SelectInput value={fields.country} onChange={set("country")} options={COUNTRIES} placeholder="Select country…" t={t} hasError={!!errors.country}/>
+                <TextInput value={fields.country} onChange={set("country")} placeholder="e.g. India" t={t} hasError={!!errors.country}/>
               </Field>
             </div>
 
             {/* Additional info */}
-            <div style={{ marginBottom:14 }}>
+            <div className="mb-3.5">
               <Field label="Additional Information" t={t}>
                 <textarea
                   value={fields.additionalInfo}
                   onChange={set("additionalInfo")}
                   placeholder="Department, vendor categories you manage, any relevant details…"
                   rows={4}
+                  className="w-full px-3.5 py-3 rounded-xl text-sm outline-none resize-none transition-all"
                   style={{
-                    width:"100%", boxSizing:"border-box" as const,
-                    padding:"13px 14px",
                     background: t.bgInput,
-                    border: `1.5px solid ${t.borderDefault}`,
-                    borderRadius:10,
+                    borderWidth: "1.5px",
+                    borderColor: t.borderDefault,
                     color: t.textPrimary,
-                    fontSize:14, fontFamily:"'DM Sans', sans-serif",
-                    outline:"none", resize:"vertical" as const,
-                    lineHeight:1.6, transition:"all 0.2s",
+                    lineHeight: "1.6",
                   }}
                 />
               </Field>
             </div>
 
             {/* Row 4: Password + Confirm */}
-            <div style={{ ...row2, marginBottom:8 }}>
+            <div className={row2 + " mb-1"}>
               <Field label="Password" error={errors.password} t={t}>
                 <TextInput
                   type={showPwd ? "text" : "password"}
                   value={fields.password} onChange={set("password")}
                   placeholder="Min. 8 characters" t={t} hasError={!!errors.password}
                   rightEl={
-                    <button onClick={() => setShowPwd(v => !v)} style={{ background:"none", border:"none", cursor:"pointer", color:t.textMuted, display:"flex", padding:2 }}>
+                    <button onClick={() => setShowPwd(v => !v)} className="bg-none border-none cursor-pointer flex p-0.5" style={{ color: t.textMuted }}>
                       {showPwd ? <EyeSlash color={t.textMuted}/> : <EyeOpen color={t.textMuted}/>}
                     </button>
                   }
@@ -607,7 +507,7 @@ export default function SignUpPage() {
                   value={fields.confirmPassword} onChange={set("confirmPassword")}
                   placeholder="Re-enter password" t={t} hasError={!!errors.confirmPassword}
                   rightEl={
-                    <button onClick={() => setShowCPwd(v => !v)} style={{ background:"none", border:"none", cursor:"pointer", color:t.textMuted, display:"flex", padding:2 }}>
+                    <button onClick={() => setShowCPwd(v => !v)} className="bg-none border-none cursor-pointer flex p-0.5" style={{ color: t.textMuted }}>
                       {showCPwd ? <EyeSlash color={t.textMuted}/> : <EyeOpen color={t.textMuted}/>}
                     </button>
                   }
@@ -616,38 +516,40 @@ export default function SignUpPage() {
             </div>
 
             {/* Terms checkbox */}
-            <div style={{ display:"flex", alignItems:"flex-start", gap:10, margin:"18px 0 6px", cursor:"pointer" }}
-              onClick={() => { setFields(f => ({ ...f, agreed: !f.agreed })); setErrors(e => ({ ...e, agreed: undefined })); }}>
-              <div style={{
-                width:18, height:18, borderRadius:5, flexShrink:0, marginTop:2,
-                background: fields.agreed ? t.accent : t.bgCard,
-                border: `1.5px solid ${errors.agreed ? t.error : fields.agreed ? t.accent : t.borderStrong}`,
-                display:"flex", alignItems:"center", justifyContent:"center",
-                transition:"all 0.2s",
-              }}>
+            <div
+              className="flex items-start gap-2.5 my-4.5 cursor-pointer"
+              onClick={() => { setFields(f => ({ ...f, agreed: !f.agreed })); setErrors(e => ({ ...e, agreed: undefined })); }}
+            >
+              <div
+                className="w-4.5 h-4.5 rounded flex-shrink-0 mt-0.5 flex items-center justify-center transition-all"
+                style={{
+                  background: fields.agreed ? t.accent : t.bgCard,
+                  borderWidth: "1.5px",
+                  borderColor: errors.agreed ? t.error : fields.agreed ? t.accent : t.borderStrong,
+                }}
+              >
                 {fields.agreed && <CheckIcon color={t.checkmark} size={10}/>}
               </div>
-              <span style={{ fontSize:13, color:t.textMuted, lineHeight:1.55 }}>
+              <span className="text-sm leading-1.55" style={{ color: t.textMuted }}>
                 I agree to the{" "}
-                <span style={{ color:t.accent, fontWeight:600 }}>Terms of Service</span>
+                <span style={{ color: t.accent, fontWeight: 600 }}>Terms of Service</span>
                 {" "}and{" "}
-                <span style={{ color:t.accent, fontWeight:600 }}>Privacy Policy</span>.
+                <span style={{ color: t.accent, fontWeight: 600 }}>Privacy Policy</span>.
                 {" "}Data is handled securely per procurement compliance standards.
               </span>
             </div>
-            {errors.agreed && <p style={{ fontSize:11.5, color:t.error, marginBottom:10 }}>⚠ {errors.agreed}</p>}
+            {errors.agreed && <p className="text-xs mb-2.5" style={{ color: t.error }}>⚠ {errors.agreed}</p>}
 
             {/* Register button */}
             <button
               onClick={handleSubmit}
+              className="w-full mt-5 py-3.5 rounded-xl text-base font-bold transition-all hover:scale-105 focus:outline-none"
               style={{
-                width:"100%", marginTop:20, padding:"15px",
-                background: t.btnBg, color: t.btnText,
-                border:"none", borderRadius:11,
-                fontSize:16, fontWeight:700, fontFamily:"'Sora', sans-serif",
-                cursor:"pointer", letterSpacing:"-0.01em",
-                boxShadow:`0 4px 16px ${t.accentGlow}`,
-                transition:"all 0.2s",
+                background: t.btnBg,
+                color: t.btnText,
+                fontFamily: "'Sora', sans-serif",
+                letterSpacing: "-0.01em",
+                boxShadow: `0 4px 16px ${t.accentGlow}`,
               }}
               onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = t.btnHover; (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)"; }}
               onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = t.btnBg; (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)"; }}
@@ -655,9 +557,9 @@ export default function SignUpPage() {
               Register →
             </button>
 
-            <p style={{ textAlign:"center", marginTop:14, fontSize:13.5, color:t.textMuted }}>
+            <p className="text-center mt-3.5 text-sm" style={{ color: t.textMuted }}>
               Already have an account?{" "}
-              <span style={{ color:t.accent, fontWeight:600, cursor:"pointer" }}>Sign in</span>
+              <span style={{ color: t.accent, fontWeight: 600, cursor: "pointer" }}>Sign in</span>
             </p>
           </>
         )}
